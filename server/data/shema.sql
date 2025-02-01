@@ -115,9 +115,7 @@ FROM comment c
 
 INSERT OR IGNORE INTO categories (category_name)
 VALUES 
-    ('javascript'), 
-    ('golang'), 
-    ('rust'), 
-    ('programming'), 
-    ('tech');
+    ('cars'), 
+    ('football'), 
+    ('ronaldo');
 

@@ -325,12 +325,20 @@ body {
   border: #a9aeb8 solid 1px;
   border-radius: 5px;
 }
-.post-content.input{
+.post-content.input, .coment-content.input{
  resize: none;
  overflow: scroll;
  color: black;
+ margin-top: 5px;
+ width: 100%;
 }
-.addpost{
+.post-title.input{
+  color: #000;
+  margin-top: 5px;
+  width: 30%;
+  resize: none;
+}
+.addpost, .addcoment{
   font-family: lfontlmla7;
   font-size: smaller;
   padding: 3px;
@@ -340,7 +348,7 @@ body {
   align-self: flex-end;
   cursor: pointer;
 }
-.addpost:active{
+.addpost:active, .addcoment:active{
   background-color: #a2a6ad;
 }
 .beta{

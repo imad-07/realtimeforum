@@ -56,19 +56,20 @@ func (a *PostService) CreatePost(post shareddata.Post, uuid string) error {
 	post.ID = postId
 
 	// Add Categories
-	/*err = a.AddCategoriesToPost(post)
+	err = a.AddCategoriesToPost(post)
 	if err != nil {
 		if errDB := a.PostData.DeletePost(postId); errDB != nil {
 			return errDB
 		}
 		return err
-	}*/
+	}
 
 	return nil
 }
 
 // Add categories to the posts
 func (a *PostService) AddCategoriesToPost(post shareddata.Post) error {
+	fmt.Println(post.Categories)
 	for _, category_name := range post.Categories {
 		// check if the category is exist and get its id
 		category_id, err := a.PostData.GetCategoryId(category_name)

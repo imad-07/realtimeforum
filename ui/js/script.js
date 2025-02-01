@@ -386,6 +386,49 @@ function createcomment(Comment, container) {
   coment.id = Comment.id
   container.appendChild(coment)
 }
+function commentin(username) {
+  // Create the main comment div
+  let commentDiv = document.createElement("div");
+  commentDiv.classList.add("coment", "input");
+
+  // Create user info section
+  let userInfoDiv = document.createElement("div");
+  userInfoDiv.classList.add("user-info");
+
+  let avatarImg = document.createElement("img");
+  avatarImg.src = "/ui/css/default-profile.jpg";
+  avatarImg.alt = "User Avatar";
+  avatarImg.classList.add("avatar");
+
+  let userDetailsDiv = document.createElement("div");
+  userDetailsDiv.classList.add("user-details");
+
+  let usernameHeading = document.createElement("h4");
+  usernameHeading.classList.add("username");
+  usernameHeading.textContent = username;
+
+  userDetailsDiv.appendChild(usernameHeading);
+  userInfoDiv.appendChild(avatarImg);
+  userInfoDiv.appendChild(userDetailsDiv);
+
+  // Create comment content
+  let commentContent = document.createElement("textarea");
+  commentContent.classList.add("coment-content", "input");
+  commentContent.placeholder = "Enter your comment here...";
+
+  const addCommentDiv = document.createElement('div');
+  addCommentDiv.classList.add('addcoment');
+
+  const addCommentButton = document.createElement('button');
+  addCommentButton.textContent = 'Coment';
+  addCommentDiv.appendChild(addCommentButton)
+  // Append everything to the main comment div
+  commentDiv.appendChild(userInfoDiv);
+  commentDiv.appendChild(commentContent);
+  commentDiv.appendChild(addCommentDiv)
+
+  return commentDiv
+}
 function postin(){
   const postDiv = document.createElement('div');
   postDiv.classList.add('post', 'beta');
@@ -404,6 +447,10 @@ function postin(){
   const usernameH4 = document.createElement('h4');
   usernameH4.classList.add('username');
   usernameH4.textContent = "Add Your Own Post!";
+
+  const postTitleTextarea = document.createElement('textarea')
+  postTitleTextarea.classList.add('post-title', 'input');
+  postTitleTextarea.placeholder = "Title"
 
   userDetailsDiv.appendChild(usernameH4);
   userInfoDiv.appendChild(avatarImg);
@@ -441,6 +488,7 @@ function postin(){
   addPostDiv.appendChild(addPostButton);
 
   postDiv.appendChild(userInfoDiv);
+  postDiv.appendChild(postTitleTextarea)
   postDiv.appendChild(postContentTextarea);
   postDiv.appendChild(categoriesDiv);
   postDiv.appendChild(addPostDiv);
@@ -476,6 +524,10 @@ function createPost(Post) {
   userDetails.appendChild(timestamp);
   userInfo.appendChild(avatar);
   userInfo.appendChild(userDetails);
+
+  const posttitle = document.createElement('p');
+  posttitle.classList.add('post-title');
+  posttitle.textContent = Post.title;
 
   // Create the post content
   const postContent = document.createElement('p');
@@ -561,19 +613,28 @@ function createPost(Post) {
   let commentscontainer = document.createElement("div")
   commentscontainer.style.display = "none"
   commentscontainer.classList.add("comments-section")
+  let commentinput = commentin(Post.author)
+  console.log(commentinput)
+  commentscontainer.appendChild(commentinput)
+  let addCommentButton = commentinput.querySelector(".addcoment")
+  addCommentButton.addEventListener("click",async function() {
+    let content = commentinput.querySelector(".coment-content.input").value
+    let r = await loadcomment(content,Post.id)
+    console.log(r)
+  })
   let cmtnum = 1
   comment.addEventListener("click", async function(){
     if (commentscontainer.style.display == "none"){
     let cmtloading = false
     commentscontainer.style.display = "block"
-    let cmnts = await loadPosComments(Post.id,cmtnum);
+    let cmnts = await loadComments(Post.id,cmtnum);
     if (cmnts !== "baraka elik"){
       cmnts.forEach(cmt => createcomment(cmt,commentscontainer));
       cmtnum++
     commentscontainer.addEventListener("scroll", async () => {
       if (commentscontainer.scrollTop + commentscontainer.clientHeight >= commentscontainer.scrollHeight * 0.95 && !cmtloading || cmtnum == 1){
     try {
-      let cmnts = await loadPosComments(Post.id,cmtnum);
+      let cmnts = await loadComments(Post.id,cmtnum);
       if (cmnts !== "baraka elik"){
       cmnts.forEach(cmt => createcomment(cmt,commentscontainer));
       commentscontainer.scrollTo(0, commentscontainer.scrollHeight*0.80)
@@ -591,6 +652,7 @@ function createPost(Post) {
 })
   // Append all sections to the post
   post.appendChild(userInfo);
+  post.appendChild(posttitle);
   post.appendChild(postContent);
   post.appendChild(postActions);
   post.appendChild(commentscontainer);
@@ -602,9 +664,12 @@ function createPost(Post) {
     let postinput = postin()
     let addpostbutton = postinput.querySelector(".addpost")
     addpostbutton.addEventListener("click",async function() {
-      let content = postinput.querySelector(".input").value
-      let cats = postinput.querySelectorAll(".categorie")
-      // todo for gheda sbt
+      let content = postinput.querySelector(".post-content.input").value
+      let title = postinput.querySelector(".post-title.input").value
+      let cats = postinput.querySelectorAll(".categorie input:checked")
+      let categories = []
+      cats.forEach(cat=> categories.push(cat.value))
+      let r = await loadaddPost(content,categories, title)
     })
     postsection.appendChild(postinput)
   }
@@ -746,24 +811,44 @@ async function fetchComments(postId, cnum){
   const res = await fetch(`/api/post/${postId}/comments/${cnum}`);
   return await res.json();
 }
-async function loadPosComments(postId,cnum) {
+async function loadComments(postId,cnum){
   let response = await fetchComments(postId,cnum);
   let comments = response.Comments;
   if(comments.length == 0){
      return "baraka elik"
   }
-  console.log(comments)
   return comments;
 }
-async function addpost(contentInput, categories) {
+async function loadaddPost(contentInput, categories, title){
+  let response = await addpost(contentInput,categories, title)
+  console.log(response)
+  return response.ok
+}
+async function addpost(contentInput, categories, Title){
   const res = await fetch("/api/post/", {
     method: "post",
     body: JSON.stringify({
+      title: Title,
       content: contentInput,
       categories: categories,
     }),
   });
   return res
+}
+async function addcomment(contentInput,postId){
+  const res = await fetch("/api/comment", {
+    method: "post",
+    body: JSON.stringify({
+      content: contentInput,
+      postId: postId,
+    }),
+  });
+  return res
+}
+async function loadcomment(contentInput,postId){
+  let response = await addcomment(contentInput,postId)
+  console.log(response)
+  return response.ok
 }
 (async function(){
   if (!info.authorize){
