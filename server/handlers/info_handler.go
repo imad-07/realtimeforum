@@ -2,6 +2,7 @@ package handler
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -33,14 +34,17 @@ func NewInfoHandler(db *sql.DB) *InfoHandler {
 
 func (h *InfoHandler) Info(w http.ResponseWriter, r *http.Request) {
 	// parse user uid
+	if r.Method != http.MethodGet {
+		return
+	}
 	uid := ""
 	userUID, errCookie := r.Cookie(shareddata.SessionName)
 	if errCookie == nil {
 		uid = userUID.Value
 	}
-
 	// Get Info Data
 	infoData, err := h.InfoService.GetInfoData(uid)
+	fmt.Println(infoData)
 	if err != nil {
 		if err == sqlite3.ErrLocked {
 			helpers.WriteJson(w, http.StatusLocked, struct {
@@ -57,6 +61,7 @@ func (h *InfoHandler) Info(w http.ResponseWriter, r *http.Request) {
 	if errCookie == nil && !helpers.CheckExpiredCookie(userUID.Value, time.Now(), h.InfoService.InfoData.Db) {
 		infoData.Authorize = false
 		DeleteSessionCookie(w, userUID.Value)
+		fmt.Println(helpers.CheckExpiredCookie(userUID.Value, time.Now(), h.InfoService.InfoData.Db) )
 	}
 
 	helpers.WriteJson(w, http.StatusOK, infoData)

@@ -25,16 +25,16 @@ func (database *UserData) CheckIfUserExists(username, email string) bool {
 	return uname == username || uemail == email
 }
 
-func (database *UserData) GetUserPassword(email string) (string, error) {
+func (database *UserData) GetUserPassword(username, email string) (string, error) {
 	var password string
-	err := database.DB.QueryRow("SELECT password FROM user_profile WHERE email = ?",
-		email).Scan(&password)
+	err := database.DB.QueryRow("SELECT password FROM user_profile WHERE username = ? OR email = ?",
+		username,email).Scan(&password)
 	return password, err
 }
 
-func (database *UserData) UpdateUuid(uuid, email string) error {
+func (database *UserData) UpdateUuid(uuid, email,username string) error {
 	expire := time.Now().Add(time.Hour)
-	_, err := database.DB.Exec("UPDATE user_profile SET uid = ?, expired_at = ? WHERE email = ?", uuid, expire, email)
+	_, err := database.DB.Exec("UPDATE user_profile SET uid = ?, expired_at = ? WHERE email = ? OR username = ?", uuid, expire, email, username)
 	return err
 }
 

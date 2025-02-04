@@ -58,7 +58,7 @@ func (s *UserService) RegisterUser(user *shareddata.User) error {
 func (s *UserService) LoginUser(user *shareddata.User) error {
 	// email
 	(*user).Email = strings.ToLower((*user).Email)
-	if EmailChecker((*user).Email) {
+	if EmailChecker((*user).Email) && (len((*user).Username) < 3 || len((*user).Username) > 15){
 		return errors.New(shareddata.Errors.InvalidEmail)
 	}
 	if len((*user).Email) > 50 {
@@ -73,7 +73,7 @@ func (s *UserService) LoginUser(user *shareddata.User) error {
 		return errors.New(shareddata.Errors.InvalidCredentials)
 	}
 	// get user password
-	UserPassword, err := s.UserData.GetUserPassword((*user).Email)
+	UserPassword, err := s.UserData.GetUserPassword((*user).Username,(*user).Email)
 	if err != nil {
 		return err
 	}
@@ -87,7 +87,7 @@ func (s *UserService) LoginUser(user *shareddata.User) error {
 	(*user).Uuid = GenerateUuid()
 
 	// Update uuid
-	s.UserData.UpdateUuid((*user).Uuid, (*user).Email)
+	s.UserData.UpdateUuid((*user).Uuid, (*user).Email,(*user).Username)
 
 	return nil
 }

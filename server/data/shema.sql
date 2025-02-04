@@ -1,3 +1,12 @@
+CREATE TABLE IF NOT EXISTS user_chats (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  sender BIGINT NOT NULL,
+  receiver BIGINT NOT NULL,
+  message TEXT NOT NULL,
+  time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (sender) REFERENCES user_profile (id) ON DELETE CASCADE,
+  FOREIGN KEY (receiver) REFERENCES user_profile (id) ON DELETE CASCADE
+);
 CREATE TABLE IF NOT EXISTS user_profile(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,
@@ -118,4 +127,3 @@ VALUES
     ('cars'), 
     ('football'), 
     ('ronaldo');
-

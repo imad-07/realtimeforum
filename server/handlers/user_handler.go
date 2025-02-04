@@ -128,6 +128,7 @@ func (h *UserHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	// Parse Data
 	var user shareddata.User
 	err := json.NewDecoder(r.Body).Decode(&user)
+	user.Username = user.Email
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
