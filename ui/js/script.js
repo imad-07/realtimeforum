@@ -1,126 +1,723 @@
+import {
+  sidebarhtml,
+  frontcard,
+  backcard,
+  commenthtml,
+  commentdivhtml,
+  postdivhtml,
+  convchathtml,
+} from "/ui/js/components.js";
+var info = {};
+await getInfoData().then((i) => {
+  info = i;
+});
+console.log(info);
+let num = 0;
+let loading = false;
+let isSubmitting = false;
 function createSidebar() {
-    // Create the main sidebar container
-    const sidebar = document.createElement('div');
-    sidebar.classList.add('sidebar');
-  
-    // Create the profile section
-    const profileSection = document.createElement('div');
-    profileSection.classList.add('profile-section');
-  
-    const profilePic = document.createElement('img');
-    profilePic.id = 'profile-pic';
-    profilePic.src = 'css/default-profile.jpg';
-    profilePic.alt = 'Profile Picture';
-  
-    const userName = document.createElement('h3');
-    userName.id = 'user-name';
-    userName.textContent = 'Username';
-  
-    profileSection.appendChild(profilePic);
-    profileSection.appendChild(userName);
-  
-    // Create the menu
-    const menu = document.createElement('nav');
-    menu.classList.add('menu');
-  
-    // Menu items data
-    const menuItems = [
-      {
-        text: 'Home',
-        svgPath: 'M240-200h120v-240h240v240h120v-360L480-740 240-560v360Zm-80 80v-480l320-240 320 240v480H520v-240h-80v240H160Zm320-350Z',
-      },
-      {
-        text: 'Chat',
-        svgPath: 'M240-400h320v-80H240v80Zm0-120h480v-80H240v80Zm0-120h480v-80H240v80ZM80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z',
-      },
-      {
-        text: 'Profile',
-        svgPath: 'M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Zm80-80h480v-32q0-11-5.5-20T700-306q-54-27-109-40.5T480-360q-56 0-111 13.5T260-306q-9 5-14.5 14t-5.5 20v32Zm240-320q33 0 56.5-23.5T560-640q0-33-23.5-56.5T480-720q-33 0-56.5 23.5T400-640q0 33 23.5 56.5T480-560Zm0-80Zm0 400Z',
-      },
-      {
-        text: 'Log out',
-        svgPath: 'M479.88-478.67q-14.21 0-23.71-9.58t-9.5-23.75v-337.33q0-14.17 9.61-23.75 9.62-9.59 23.84-9.59 14.21 0 23.71 9.59 9.5 9.58 9.5 23.75V-512q0 14.17-9.61 23.75-9.62 9.58-23.84 9.58Zm.12 360q-75 0-140.5-28.5t-114-77q-48.5-48.5-77-114T120-478.67q0-63 21.67-121.83 21.66-58.83 62.33-106.83 9.67-11.34 24-11.5 14.33-.17 25.17 10.66 9.16 9.17 7.83 22.84-1.33 13.66-10 25-31.67 38-48 85.15-16.33 47.16-16.33 96.51 0 122.57 85.38 207.96 85.38 85.38 207.95 85.38t207.95-85.38q85.38-85.39 85.38-207.96 0-50.66-16.16-97.5-16.17-46.83-48.5-85.5-8.89-11.03-9.78-24.18Q698-699 707-708q10.67-10.67 25.67-10.17 15 .5 24.66 12.17 41 48 61.84 106.33 20.83 58.34 20.83 121 0 75-28.5 140.5t-77 114q-48.5 48.5-114 77T480-118.67Z',
-        className: 'LO',
-      },
-    ];
-    
-    menuItems.forEach((item) => {
-      const menuItem = document.createElement('a');
-      menuItem.href = '#';
-      menuItem.classList.add('menu-item');
-      if (item.className) menuItem.classList.add(item.className);
-  
-      const button = document.createElement('button');
-      button.classList.add('btn');
-  
-      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-      svg.setAttribute('height', '30');
-      svg.setAttribute('viewBox', '0 -960 960 960');
-      svg.setAttribute('width', '30');
-      svg.setAttribute('fill', '#707c97');
-  
-      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      path.setAttribute('d', item.svgPath);
-  
-      const linearGradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
-      linearGradient.setAttribute('id', 'hoverGradient');
-      linearGradient.setAttribute('x1', '0%');
-      linearGradient.setAttribute('y1', '0%');
-      linearGradient.setAttribute('x2', '100%');
-      linearGradient.setAttribute('y2', '100%');
-  
-      const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
-      stop1.setAttribute('offset', '0%');
-      stop1.setAttribute('stop-color', '#532b88');
-  
-      const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
-      stop2.setAttribute('offset', '93%');
-      stop2.setAttribute('stop-color', '#c8b1e4');
-  
-      linearGradient.appendChild(stop1);
-      linearGradient.appendChild(stop2);
-      svg.appendChild(path);
-      svg.appendChild(linearGradient);
-      button.appendChild(svg);
-      menuItem.appendChild(button);
-      menuItem.append(` ${item.text}`);
-      menu.appendChild(menuItem);
-    });
-  
-    // Append profile section and menu to the sidebar
-    sidebar.appendChild(profileSection);
-    sidebar.appendChild(menu);
-    let container = document.querySelector(".container")
-    // Append the sidebar to the body
-    container.insertBefore(sidebar, container.firstChild);
-  }
-  
-  // Call the function to create and append the sidebar
-  createSidebar();
-
-  let postsection = document.createElement("div")
-  document.querySelectorAll('.like, .dislike, .comment').forEach((element) => {
-    element.addEventListener('click', () => {
-      element.classList.toggle('active');
-    });
+  const sidebar = document.createElement("div");
+  sidebar.classList.add("sidebar");
+  sidebar.innerHTML = sidebarhtml(info.username);
+  document.querySelector(".container").appendChild(sidebar);
+  let logoutbtn = document.querySelector(".LO");
+  logoutbtn.addEventListener("click", function () {
+    logout();
   });
-  function Removesidebar(){
-    document.addEventListener("keydown",e=>{
-        if (e.key == "K"){
-            let sidebar = document.querySelector(".sidebar")
-            sidebar.remove()
+  let homebtn = document.querySelector(".Home");
+  homebtn.addEventListener("click", function () {
+    let inp = document.querySelector(".post.beta");
+    if (!inp) {
+      loadPosts(0).then((posts) => {
+        let ps = document.createElement("div");
+        ps.classList.add("posts-section");
+        ps.appendChild(postin());
+        document.querySelector(".container").appendChild(ps);
+        if (posts != "no posts") {
+          for (let post in posts) {
+            createPost(posts[post]);
+          }
         }
-      })
+      });
+    }
+  });
+  let chatbtn = document.querySelector(".Chat");
+  chatbtn.addEventListener("click", function () {
+    document.querySelector(".posts-section").remove();
+    /******** */
+    document.body.insertAdjacentHTML("beforeend", convchathtml);
+    in_conv()
+  });
+}
+document.querySelectorAll(".like, .dislike, .comment").forEach((element) => {
+  element.addEventListener("click", () => {
+    element.classList.toggle("active");
+  });
+});
+function Removecard() {
+  let card = document.querySelector(".Form") || null;
+  if (card != null) {
+    card.remove();
   }
-  const card = document.querySelector('.card');
-const switchToRegister = document.getElementById('switch-to-register');
-const switchToLogin = document.getElementById('switch-to-login');
+}
+function createCard() {
+  const card = document.createElement("div");
+  card.classList.add("card");
+  // Front side (Login Form)
+  const frontSide = document.createElement("div");
+  frontSide.classList.add("card-side", "front");
+  frontSide.innerHTML = frontcard;
+  // Back side (Register Form)
+  const backSide = document.createElement("div");
+  backSide.classList.add("card-side", "back");
+  backSide.innerHTML = backcard;
+  card.appendChild(frontSide);
+  card.appendChild(backSide);
+  let container = document.querySelector(".container");
+  // Append the card to the page
+  let form = document.createElement("div");
+  form.classList.add("Form");
+  form.appendChild(card);
+  container.appendChild(form);
 
-switchToRegister.addEventListener('click', () => {
-  card.classList.add('flipped');
-});
+  document
+    .querySelector("#switch-to-register")
+    .addEventListener("click", () => {
+      card.classList.add("flipped");
+    });
 
-switchToLogin.addEventListener('click', () => {
-  card.classList.remove('flipped');
-});
+  document.querySelector("#switch-to-login").addEventListener("click", () => {
+    card.classList.remove("flipped");
+  });
+  frontSide
+    .querySelector("form")
+    .addEventListener("submit", async function (e) {
+      console.log("clicked");
+      e.preventDefault();
+      if (!isSubmitting) {
+        isSubmitting = true;
+        try {
+          // Handle Login Form
+          if (e.target.id === "login-form") {
+            const email = e.target.querySelector("#login-id").value;
+            const password = e.target.querySelector("#login-password").value;
+
+            if (validinfos({ email, password }, "login")) {
+              await sendlogininfo({ email, password });
+            }
+          }
+        } finally {
+          isSubmitting = false;
+        }
+      }
+    });
+  backSide.querySelector("form").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const username = e.target.querySelector("#nickname").value;
+    const age = e.target.querySelector("#age").value;
+    const gender = e.target.querySelector("#gender").value;
+    const firstname = e.target.querySelector("#first-name").value;
+    const lastname = e.target.querySelector("#last-name").value;
+    const email = e.target.querySelector("#email").value;
+    const password = e.target.querySelector("#password").value;
+    if (
+      validinfos(
+        { username, age, gender, firstname, lastname, email, password },
+        "register"
+      )
+    ) {
+      await sendRegisterinfo({
+        username,
+        age: +age,
+        gender,
+        firstname,
+        lastname,
+        email,
+        password,
+      });
+    }
+  });
+  return card;
+}
+function createcomment(Comment, container) {
+  // Create the main comment container
+  const comment = document.createElement("div");
+  comment.classList.add("comment");
+  comment.id = Comment.id;
+  // Set innerHTML to reduce DOM operations
+  comment.innerHTML = commenthtml(Comment);
+  // Append the comment to the container
+  container.appendChild(comment);
+}
+function commentin(username) {
+  // Create the main comment div
+  let commentDiv = document.createElement("div");
+  commentDiv.classList.add("coment", "input");
+  // Set innerHTML to reduce DOM operations
+  commentDiv.innerHTML = commentdivhtml(username);
+  return commentDiv;
+}
+function postin() {
+  const categories = ["football", "cars", "ronaldo"];
+  const postDiv = document.createElement("div");
+  postDiv.classList.add("post", "beta");
+  // Generate category checkboxes dynamically
+  const categoryHTML = categories
+    .map(
+      (category) => `
+    <label class="categorie">
+      <input type="checkbox" name="${category}" value="${category}">
+      ${category.charAt(0).toUpperCase() + category.slice(1)}
+    </label>
+  `
+    )
+    .join("");
+
+  postDiv.innerHTML = postdivhtml(categoryHTML);
+  return postDiv;
+}
+function createPost(Post) {
+  // Create the main post container
+  const post = document.createElement("div");
+  post.classList.add("post");
+
+  // Create the user info section
+  const userInfo = document.createElement("div");
+  userInfo.classList.add("user-info");
+
+  const avatar = document.createElement("img");
+  avatar.src = "/ui/css/default-profile.jpg";
+  avatar.alt = "User Avatar";
+  avatar.classList.add("avatar");
+
+  const userDetails = document.createElement("div");
+  userDetails.classList.add("user-details");
+
+  const username = document.createElement("h4");
+  username.classList.add("username");
+  username.textContent = Post.author;
+
+  const timestamp = document.createElement("p");
+  timestamp.classList.add("timestamp");
+  timestamp.textContent = Post.date;
+
+  userDetails.appendChild(username);
+  userDetails.appendChild(timestamp);
+  userInfo.appendChild(avatar);
+  userInfo.appendChild(userDetails);
+
+  const posttitle = document.createElement("p");
+  posttitle.classList.add("post-title");
+  posttitle.textContent = Post.title;
+
+  // Create the post content
+  const postContent = document.createElement("p");
+  postContent.classList.add("post-content");
+  postContent.textContent = Post.content;
+
+  // Create the post actions section
+  const postActions = document.createElement("div");
+  postActions.classList.add("post-actions");
+
+  // Like button and notification
+  const like = document.createElement("div");
+  like.classList.add("like");
+
+  const likeButton = document.createElement("button");
+  const likeSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  likeSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  likeSvg.setAttribute("height", "20px");
+  likeSvg.setAttribute("viewBox", "0 -960 960 960");
+  likeSvg.setAttribute("width", "20px");
+  likeSvg.setAttribute("fill", "#707C97");
+  const likePath = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "path"
+  );
+  likePath.setAttribute(
+    "d",
+    "M720-144H264v-480l288-288 32 22q17 12 26 30.5t5 38.5l-1 5-38 192h264q30 0 51 21t21 51v57q0 8-1.5 14.5T906-467L786.93-187.8Q778-168 760-156t-40 12Zm-384-72h384l120-279v-57H488l49-243-201 201v378Zm0-378v378-378Zm-72-30v72H120v336h144v72H48v-480h216Z"
+  );
+  likeSvg.appendChild(likePath);
+  likeButton.appendChild(likeSvg);
+
+  const likeNotification = document.createElement("span");
+  likeNotification.classList.add("notification-icon");
+  likeNotification.textContent = Post.likes;
+
+  like.appendChild(likeButton);
+  like.appendChild(likeNotification);
+
+  // Dislike button and notification
+  const dislike = document.createElement("div");
+  dislike.classList.add("dislike");
+
+  const dislikeButton = document.createElement("button");
+  const dislikeSvg = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "svg"
+  );
+  dislikeSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  dislikeSvg.setAttribute("height", "20px");
+  dislikeSvg.setAttribute("viewBox", "0 -960 960 960");
+  dislikeSvg.setAttribute("width", "20px");
+  dislikeSvg.setAttribute("fill", "#707C97");
+  const dislikePath = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "path"
+  );
+  dislikePath.setAttribute(
+    "d",
+    "M240-816h456v480L408-48l-32-22q-17-12-26-30.5t-5-38.5l1-5 38-192H120q-30 0-51-21t-21-51v-57q0-8 1.5-14.5T54-493l119-279q8-20 26.5-32t40.5-12Zm384 72H240L120-465v57h352l-49 243 201-201v-378Zm0 378v-378 378Zm72 30v-72h144v-336H696v-72h216v480H696Z"
+  );
+  dislikeSvg.appendChild(dislikePath);
+  dislikeButton.appendChild(dislikeSvg);
+
+  const dislikeNotification = document.createElement("span");
+  dislikeNotification.classList.add("notification-icon");
+  dislikeNotification.textContent = Post.dislikes;
+
+  dislike.appendChild(dislikeButton);
+  dislike.appendChild(dislikeNotification);
+
+  // Comment button and notification
+  const comment = document.createElement("div");
+  comment.classList.add("comments");
+
+  const commentButton = document.createElement("button");
+  const commentSvg = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "svg"
+  );
+  commentSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  commentSvg.setAttribute("height", "20px");
+  commentSvg.setAttribute("viewBox", "0 -960 960 960");
+  commentSvg.setAttribute("width", "20px");
+  commentSvg.setAttribute("fill", "#707C97");
+  const commentPath = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "path"
+  );
+  commentPath.setAttribute(
+    "d",
+    "M864-96 720-240H360q-29.7 0-50.85-21.15Q288-282.3 288-312v-48h384q29.7 0 50.85-21.15Q744-402.3 744-432v-240h48q29.7 0 50.85 21.15Q864-629.7 864-600v504ZM168-462l42-42h390v-288H168v330ZM96-288v-504q0-29.7 21.15-50.85Q138.3-864 168-864h432q29.7 0 50.85 21.15Q672-821.7 672-792v288q0 29.7-21.15 50.85Q629.7-432 600-432H240L96-288Zm72-216v-288 288Z"
+  );
+  commentSvg.appendChild(commentPath);
+  commentButton.appendChild(commentSvg);
+
+  const commentNotification = document.createElement("span");
+  commentNotification.classList.add("notification-icon");
+  commentNotification.textContent = Post.commentsCount;
+
+  comment.appendChild(commentButton);
+  comment.appendChild(commentNotification);
+  // Append all post actions to the post-actions container
+  postActions.appendChild(like);
+  postActions.appendChild(dislike);
+  postActions.appendChild(comment);
+  let commentscontainer = document.createElement("div");
+  commentscontainer.style.display = "none";
+  commentscontainer.classList.add("comments-section");
+  let commentinput = commentin(Post.author);
+  commentscontainer.appendChild(commentinput);
+  let addCommentButton = commentinput.querySelector(".addcoment");
+  addCommentButton.addEventListener("click", async function () {
+    let content = commentinput.querySelector(".coment-content.input").value;
+    let r = await loadcomment(content, Post.id);
+  });
+  let cmtnum = 1;
+  comment.addEventListener("click", async function () {
+    if (commentscontainer.style.display == "none") {
+      let cmtloading = false;
+      commentscontainer.style.display = "block";
+      let cmnts = await loadComments(Post.id, cmtnum);
+      if (cmnts !== "baraka elik") {
+        cmnts.forEach((cmt) => createcomment(cmt, commentscontainer));
+        cmtnum++;
+        commentscontainer.addEventListener("scroll", async () => {
+          if (
+            (commentscontainer.scrollTop + commentscontainer.clientHeight >=
+              commentscontainer.scrollHeight * 0.95 &&
+              !cmtloading) ||
+            cmtnum == 1
+          ) {
+            try {
+              let cmnts = await loadComments(Post.id, cmtnum);
+              if (cmnts !== "baraka elik") {
+                cmnts.forEach((cmt) => createcomment(cmt, commentscontainer));
+                commentscontainer.scrollTo(
+                  0,
+                  commentscontainer.scrollHeight * 0.8
+                );
+                cmtnum = cmtnum + 1;
+                cmtloading = false;
+              }
+            } catch (error) {
+              console.error("Error loading comments:", error);
+            }
+          }
+        });
+      }
+    } else {
+      commentscontainer.style.display = "none";
+    }
+  });
+
+  // Append all sections to the post
+  post.appendChild(userInfo);
+  post.appendChild(posttitle);
+  post.appendChild(postContent);
+  post.appendChild(postActions);
+  post.appendChild(commentscontainer);
+  post.id = Post.id;
+  let postsection = document.querySelector(".posts-section");
+  if (postsection == null) {
+    postsection = document.createElement("div");
+    postsection.classList.add("posts-section");
+    let postinput = postsection.querySelector(".posts-section");
+    if (!postinput) {
+      postinput = postin();
+      postsection.appendChild(postinput);
+    }
+    let addpostbutton = postinput.querySelector(".addpost");
+
+    console.log("hello", addpostbutton);
+    addpostbutton.addEventListener("click", async function () {
+      let content = postinput.querySelector(".post-content.input").value;
+      let title = postinput.querySelector(".post-title.input").value;
+      let cats = postinput.querySelectorAll(".categorie input:checked");
+      let categories = [];
+      cats.forEach((cat) => categories.push(cat.value));
+      let r = await loadaddPost(content, categories, title);
+    });
+  }
+  let container = document.querySelector(".container");
+  // Append the post to the body
+  postsection.appendChild(post);
+  container.appendChild(postsection);
+  postsection.addEventListener("scroll", async () => {
+    if (
+      postsection.scrollTop + postsection.clientHeight >=
+        postsection.scrollHeight &&
+      !loading
+    ) {
+      loading = true;
+      console.log("Loading more posts...");
+      try {
+        let posts = await loadPosts(num);
+        if (posts != "baraka elik" && posts != "no posts") {
+          posts.forEach((post) => createPost(post));
+          postsection.scrollTo(0, postsection.scrollHeight * 0.8);
+          num = num + 1;
+          loading = false;
+        }
+      } catch (error) {
+        console.error("Error loading posts:", error);
+      }
+    }
+  });
+}
+function validinfos(user, action) {
+  function validbs(fields) {
+    for (const field of fields) {
+      if (!user[field]) {
+        return false;
+      }
+    }
+    return true;
+  }
+  if (action == "login") {
+    if (!validateEmail(email)) return false;
+    if (!validatePassword(password)) return false;
+  } else if (action == "register") {
+    const { username, age, gender, firstname, lastname, email, password } =
+      user;
+
+    if (
+      !validbs([
+        "username",
+        "age",
+        "gender",
+        "firstname",
+        "lastname",
+        "email",
+        "password",
+      ])
+    )
+      return false;
+    if (!validateEmail(email)) return false;
+    if (!validatePassword(password)) return false;
+    if (
+      !validlen(username, 3, 15) ||
+      !validlen(firstname, 3, 15) ||
+      !validlen(lastname, 3, 15) ||
+      age > 100 ||
+      age < 12 ||
+      (gender != "male" && gender != "female")
+    ) {
+      console.log(user);
+      return false;
+    }
+  }
+  return true;
+}
+function validlen(str, x, y) {
+  if (str.length < x || str.length > y) {
+    return false;
+  }
+  return true;
+}
+function validateEmail(email) {
+  if (email.length < 5 || email.length > 50) {
+    return false;
+  }
+  return true;
+}
+function validatePassword(email) {
+  if (email.length < 5 || email.length > 30) {
+    return false;
+  }
+  return true;
+}
+async function sendRegisterinfo(user) {
+  try {
+    const data = await fetch("/api/signup", {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(user),
+    });
+    if (data.ok) {
+      let card = document.querySelector(".card");
+      card.classList.remove("flipped");
+    }
+  } catch (error) {}
+}
+async function sendlogininfo(user) {
+  console.log(1);
+  try {
+    const data = await fetch("/api/login", {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(user),
+    });
+    if (data.ok) {
+      servehome();
+    } else {
+      console.log(await data.text());
+    }
+  } catch (error) {
+    console.log(error);
+  } finally {
+    isSubmitting = false;
+  }
+}
+async function servehome() {
+  Removecard();
+  if (!document.querySelector(".sidebar")) {
+    createSidebar();
+  }
+  loadPosts(num).then((posts) => {
+    if (posts != "no posts") {
+      num++;
+      for (let post in posts) {
+        createPost(posts[post]);
+      }
+    } else {
+      let ps = document.createElement("div");
+      ps.classList.add("posts-section");
+      ps.appendChild(postin());
+      document.querySelector(".container").appendChild(ps);
+    }
+  });
+}
+async function logout() {
+  document.querySelector(".container").innerHTML = "";
+  createCard();
+  document.cookie =
+    "session_token=;Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+}
+async function fetchPosts(num) {
+  const res = await fetch(`/api/post/?page-number=${num}`);
+  const data = await res.json();
+  return data;
+}
+async function loadPosts(num) {
+  let response = await fetchPosts(num);
+  let posts = response.Posts;
+  if (posts == null) {
+    return "no posts";
+  }
+  if (posts.length == 0) {
+    return "baraka elik";
+  }
+  return posts;
+}
+async function getInfoData() {
+  const res = await fetch("/api/info");
+  const data = await res.json();
+  if (res.ok) {
+    return data;
+  }
+}
+async function fetchComments(postId, cnum) {
+  const res = await fetch(`/api/post/${postId}/comments/${cnum}`);
+  return await res.json();
+}
+async function loadComments(postId, cnum) {
+  let response = await fetchComments(postId, cnum);
+  let comments = response.Comments;
+  if (comments.length == 0) {
+    return "baraka elik";
+  }
+  return comments;
+}
+async function loadaddPost(contentInput, categories, title) {
+  let response = await addpost(contentInput, categories, title);
+  console.log(response);
+  return response.ok;
+}
+async function addpost(contentInput, categories, Title) {
+  const res = await fetch("/api/post/", {
+    method: "post",
+    body: JSON.stringify({
+      title: Title,
+      content: contentInput,
+      categories: categories,
+    }),
+  });
+  return res;
+}
+async function addcomment(contentInput, postId) {
+  const res = await fetch("/api/comment", {
+    method: "post",
+    body: JSON.stringify({
+      content: contentInput,
+      postId: postId,
+    }),
+  });
+  return res;
+}
+async function loadcomment(contentInput, postId) {
+  let response = await addcomment(contentInput, postId);
+  console.log(response);
+  return response.ok;
+}
+(async function () {
+  if (!info.authorize) {
+    createCard();
+  } else {
+    servehome(info);
+  }
+  await getInfoData().then((i) => {
+    info = i;
+  });
+})();
+/******************************************* */
+function in_conv() {
+  const chatHeader = document.querySelector(".main header h2");
+  const chatImage = document.querySelector(".main header img:first-child");
+  const chatStatus = document.querySelector(".main header h3");
+  const chatMessages = document.getElementById("chat");
+  const listUsers = document.getElementById("list");
+  const footMsg = document.querySelector(".footer");
+
+  // User Data (name, image, status, messages, and read status)
+  const userData = {
+      "Ayoub Mh": {
+          img: "/ui/css/messi.jpeg",
+          status: { color: "orange", text: "offline" },
+          messages: [
+              { sender: "Ayoub", time: "10:00AM", text: "Hey! How's it going?", type: "you", read: false },
+              { sender: "Me", time: "10:02AM", text: "All good! What about you?", type: "me", read: true },
+          ],
+      },
+      Imad: {
+          img: "/ui/css/default-profile.jpg",
+          status: { color: "green", text: "online" },
+          messages: [
+              { sender: "Imad", time: "11:00AM", text: "Are you coming today?", type: "you", read: false },
+              { sender: "Me", time: "11:05AM", text: "Yes! I'll be there at noon.", type: "me", read: true },
+          ],
+      },
+  };
+
+  // Function to clear chat interface (before selecting a user)
+  function resetChatUI() {
+      chatHeader.textContent = "";
+      chatImage.src = "/ui/css/01chat.png";
+      chatStatus.textContent = "";
+      chatMessages.innerHTML = "";
+      footMsg.innerHTML = "";
+  }
+
+  // Populate user list dynamically
+  function renderUserList() {
+      listUsers.innerHTML = Object.keys(userData)
+          .map((name) => `
+          <li data-user="${name}">
+              <img src="${userData[name].img}" style="width: 55px;height: 55px;">
+              <div>
+                  <h2>${name}</h2>
+                  <h3>
+                      <span class="status ${userData[name].status.color}"></span>
+                      ${userData[name].status.text}
+                  </h3>
+              </div>
+          </li>`)
+          .join("");
+
+      // Attach event listeners after rendering users
+      attachUserClickEvents();
+  }
+
+  // Function to handle user selection
+  function attachUserClickEvents() {
+      document.querySelectorAll("#list li").forEach((user) => {
+          user.addEventListener("click", function () {
+              const userName = this.dataset.user;
+              const userInfo = userData[userName];
+
+              if (!userInfo) return; // Skip if user not found
+
+              // Update chat header
+              chatHeader.textContent = `Chat with ${userName}`;
+              chatImage.src = userInfo.img;
+
+              // Update status dynamically
+              chatStatus.innerHTML = `<span class="status ${userInfo.status.color}"></span> ${userInfo.status.text}`;
+
+              footMsg.innerHTML = `<textarea placeholder="Type your message"></textarea><a href="#">Send</a>`;
+
+              // Mark all received messages as read
+              userInfo.messages.forEach((msg) => {
+                  if (msg.type === "you") msg.read = true;
+              });
+
+              // Update chat messages
+              chatMessages.innerHTML = userInfo.messages
+                  .map(
+                      (msg) => `
+                      <li class="${msg.type}">
+                          <div class="entete">
+                              <h3>${msg.time}</h3>
+                              <h2>${msg.sender}</h2>
+                              <span class="status ${msg.read ? "blue" : "gray"}"></span>
+                          </div>
+                          <div class="triangle"></div>
+                          <div class="message">${msg.text}</div>
+                      </li>`
+                  )
+                  .join("");
+          });
+      });
+  }
+
+  // Initial setup
+  resetChatUI(); // Ensure chat is empty initially
+  renderUserList(); // Populate the user list
+}
+
