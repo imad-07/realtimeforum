@@ -421,7 +421,7 @@ async function sendlogininfo(user){
       console.log( await data.text());
     }
   } catch (error) {
-    errorSpan.textContent = "An error occurred. Please try again.";
+    console.log(error)
   } finally {
     isSubmitting = false;
   }

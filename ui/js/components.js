@@ -124,7 +124,7 @@ let commentdivhtml = (username) =>`
     <div class="addcoment">
       <button>Coment</button>
     </div>
-  ` 
+  `
   let postdivhtml = (categoryHTML) =>`
     <div class="user-info">
       <img src="/ui/css/default-profile.jpg" alt="User Avatar" class="avatar">
