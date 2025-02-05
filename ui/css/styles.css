@@ -703,10 +703,136 @@ aside li h3 {
 }
 /******************** Responsive Styles ********************/
 
-@media (max-width: 768px) {
-  
+
+
+/* Base Styles */
+.container {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  transition: all 0.3s ease;
 }
+
+.sidebar, 
+.posts-section,
+.menu-item,
+.post {
+  transition: all 0.3s ease;
+}
+
+/* Tablet and below */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    position: relative;
+    height: auto;
+    overflow-x: hidden;
+  }
   
+  /* Sidebar becomes a top banner */
+  .sidebar {
+    width: 100%;
+    padding: 15px 20px;
+    box-sizing: border-box;
+    order: 1;
+    background: #fafafa;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  /* Center profile and stack elements */
+  .profile-section {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 15px;
+  }
+  
+  /* Reorganize menu items into a flexible grid */
+  .menu {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .menu-item {
+    flex: 1 1 calc(50% - 20px);
+    padding: 10px;
+    background: #f0f0f0;
+    border-radius: 5px;
+    text-align: center;
+  }
+  
+  /* Chat conversation layout */
+  #conv_chat {
+    margin: 20px 10px;
+    flex-direction: column;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  
+  /* Aside element tweaks */
+  aside {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+  
+  /* Posts section becomes full-width and stacks under the sidebar */
+  .posts-section {
+    width: 100%;
+    padding: 15px;
+    max-height: none;
+    order: 2;
+  }
+  
+  .post {
+    margin: 10px auto;
+    width: 100%;
+    max-width: 100%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    border-radius: 5px;
+    background: #fff;
+  }
+}
+
+/* Mobile devices */
 @media (max-width: 480px) {
+  /* Stack menu items vertically */
+  .menu-item {
+    flex: 1 1 100%;
+    margin: 5px 0;
+  }
   
+  .post {
+    margin: 5px auto;
+    width: 100%;
+    box-shadow: none;
+    padding: 10px;
+  }
+  
+  .card {
+    width: 100%;
+    height: auto;
+    margin: 10px 0;
+  }
+  
+  /* Improve textarea and link styling in chat footer */
+  #conv_chat .main .footer textarea {
+    width: 100%;
+    margin: 5px 0;
+    font-size: 14px;
+    padding: 8px;
+    box-sizing: border-box;
+  }
+  
+  #conv_chat .main .footer a {
+    margin-left: 0;
+    text-align: center;
+    display: block;
+    padding: 8px;
+  }
 }
