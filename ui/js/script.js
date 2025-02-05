@@ -26,6 +26,10 @@ function createSidebar() {
   });
   let homebtn = document.querySelector(".Home");
   homebtn.addEventListener("click", function () {
+    let c = document.querySelector(".chat")
+    if (c){
+      c.remove()
+    }
     let inp = document.querySelector(".post.beta");
     if (!inp) {
       loadPosts(0).then((posts) => {
@@ -43,9 +47,15 @@ function createSidebar() {
   });
   let chatbtn = document.querySelector(".Chat");
   chatbtn.addEventListener("click", function () {
-    document.querySelector(".posts-section").remove();
+    let p = document.querySelector(".posts-section")
+    if (p){
+      p.remove()
+    }
     /******** */
-    document.body.insertAdjacentHTML("beforeend", convchathtml);
+    let chatctr = document.createElement("div")
+    chatctr.classList.add("chat")
+    chatctr.innerHTML = convchathtml
+    document.querySelector(".container").appendChild(chatctr);
     in_conv()
   });
 }
