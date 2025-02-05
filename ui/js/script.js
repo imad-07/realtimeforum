@@ -51,12 +51,16 @@ function createSidebar() {
     if (p){
       p.remove()
     }
+    
     /******** */
+    if(!document.querySelector(".chat")){
     let chatctr = document.createElement("div")
     chatctr.classList.add("chat")
+    chatctr.innerHTML = ""
     chatctr.innerHTML = convchathtml
     document.querySelector(".container").appendChild(chatctr);
     in_conv()
+    }
   });
 }
 document.querySelectorAll(".like, .dislike, .comment").forEach((element) => {
@@ -649,8 +653,8 @@ function in_conv() {
           img: "/ui/css/default-profile.jpg",
           status: { color: "green", text: "online" },
           messages: [
-              { sender: "Imad", time: "11:00AM", text: "Are you coming today?", type: "you", read: false },
-              { sender: "Me", time: "11:05AM", text: "Yes! I'll be there at noon.", type: "me", read: true },
+              { sender: "Imad", time: "11:00AM", text: "Are you coming today?Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.", type: "you", read: false },
+              { sender: "Me", time: "11:05AM", text: "Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.", type: "me", read: true },
           ],
       },
   };
