@@ -102,7 +102,7 @@ button {
   gap: 1rem;
   padding: 1rem;
   max-width: 700px;
-  overflow: auto;
+  /* overflow: auto; */
 
 }
 
@@ -440,8 +440,9 @@ select:focus {
   height: 90%;
   max-height: 90%;
   background: #eff3f7;
-  margin: 40px auto;
-  margin-left: 100px;
+  margin: 40px 40px 40px 40px;
+    /* margin-left: 100px;
+  margin-right: 300px; */
   font-size: 0;
   border-radius: 6px;
   border: 1px solid #e6e6e6;
@@ -449,6 +450,9 @@ select:focus {
   overflow: hidden;
   display: flex;
 }
+/* .chat {
+padding: auto;
+} */
 
 aside {
   width: auto;
@@ -604,6 +608,7 @@ aside li h3 {
   height: 500px;
   border-top: 2px solid #fff;
   border-bottom: 2px solid #fff;
+  margin-right: 100px;
 }
 
 #chat li {
@@ -746,7 +751,6 @@ aside li h3 {
     display: flex;
     flex-direction: column;
     order: 2;
-    margin-left: -80px;
     margin-right: 100px;  
   }
   
@@ -803,7 +807,7 @@ aside li h3 {
   }
   
   .posts-section {
-    width: 100%;
+    /* width: 100%; */
     padding: 15px;
     max-height: none;
     order: 3;
