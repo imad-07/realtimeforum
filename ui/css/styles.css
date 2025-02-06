@@ -84,7 +84,7 @@ button {
 }
 
 .LO {
-  margin-top: 200%;
+  margin-top: 50vh;
 }
 
 .container {
@@ -705,8 +705,7 @@ aside li h3 {
 
 
 
-/* Base Styles */
-.container {
+/* .container {
   display: flex;
   flex-direction: row;
   align-items: stretch;
@@ -718,18 +717,15 @@ aside li h3 {
 .menu-item,
 .post {
   transition: all 0.3s ease;
-}
-
-/* Tablet and below */
+} */
 @media (max-width: 768px) {
   .container {
+    display: flex;
     flex-direction: column;
     position: relative;
-    height: auto;
     overflow-x: hidden;
   }
   
-  /* Sidebar becomes a top banner */
   .sidebar {
     width: 100%;
     padding: 15px 20px;
@@ -739,21 +735,56 @@ aside li h3 {
     border-bottom: 1px solid #ddd;
   }
   
-  /* Center profile and stack elements */
+  .chat {
+    display: flex;
+    flex-direction: column;
+    order: 2;
+    margin-left: -80px;
+    margin-right: 100px;  
+  }
+  
+  #conv_chat {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  #conv_chat > aside {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    box-sizing: border-box;
+    order: 1;
+  }
+  
+  #conv_chat > .main {
+    display: block;
+    width: 100%;
+    margin: 20px 10px;
+    max-height: 80vh;
+    overflow-y: auto;
+    order: 2;
+  }
+  .main {
+    overflow-y: auto;
+    height: 60%;
+  }
+  
   .profile-section {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
   }
   
-  /* Reorganize menu items into a flexible grid */
   .menu {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
     margin-bottom: 20px;
+    
   }
   
   .menu-item {
@@ -764,28 +795,11 @@ aside li h3 {
     text-align: center;
   }
   
-  /* Chat conversation layout */
-  #conv_chat {
-    margin: 20px 10px;
-    flex-direction: column;
-    max-height: 80vh;
-    overflow-y: auto;
-  }
-  
-  /* Aside element tweaks */
-  aside {
-    width: 100%;
-    padding: 10px;
-    font-size: 14px;
-    box-sizing: border-box;
-  }
-  
-  /* Posts section becomes full-width and stacks under the sidebar */
   .posts-section {
     width: 100%;
     padding: 15px;
     max-height: none;
-    order: 2;
+    order: 3;
   }
   
   .post {
@@ -797,11 +811,13 @@ aside li h3 {
     border-radius: 5px;
     background: #fff;
   }
+  
+  .LO {
+    margin-top: 0;
+  }
 }
 
-/* Mobile devices */
 @media (max-width: 480px) {
-  /* Stack menu items vertically */
   .menu-item {
     flex: 1 1 100%;
     margin: 5px 0;
@@ -820,7 +836,6 @@ aside li h3 {
     margin: 10px 0;
   }
   
-  /* Improve textarea and link styling in chat footer */
   #conv_chat .main .footer textarea {
     width: 100%;
     margin: 5px 0;
