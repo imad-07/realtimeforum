@@ -266,12 +266,14 @@ button {
 
 .front {
   color: #333;
+  height: auto;
+
 }
 
 .back {
   transform: rotateY(180deg);
   color: #333;
-  overflow: scroll;
+  overflow: auto;
 }
 
 .card h2 {
@@ -317,6 +319,7 @@ select:focus {
   cursor: pointer;
   border: none;
   transition: transform 0.3s ease, filter 0.3s ease;
+  text-align: center;
 }
 
 .card button:hover {
@@ -719,6 +722,10 @@ aside li h3 {
   transition: all 0.3s ease;
 } */
 @media (max-width: 768px) {
+  .card {
+    width: 200px;
+    height: 500px;
+  }
   .container {
     display: flex;
     flex-direction: column;
@@ -818,6 +825,9 @@ aside li h3 {
 }
 
 @media (max-width: 480px) {
+  .card {
+    width: 100px;
+  }
   .menu-item {
     flex: 1 1 100%;
     margin: 5px 0;
@@ -828,12 +838,6 @@ aside li h3 {
     width: 100%;
     box-shadow: none;
     padding: 10px;
-  }
-  
-  .card {
-    width: 100%;
-    height: auto;
-    margin: 10px 0;
   }
   
   #conv_chat .main .footer textarea {

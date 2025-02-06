@@ -72,19 +72,20 @@ let frontcard = `
 let backcard = `
     <h2>Register</h2>
     <form class="register-form" method="POST">
-      <label for="nickname">Nickname</label>
-      <input type="text" id="nickname" name="nickname" required>
-      <label for="age">Age</label>
-      <input type="number" id="age" name="age" required>
-      <label for="gender">Gender</label>
-      <select id="gender" name="gender" required>
-        <option value="male">Male</option>
-        <option value="female">Female</option>
-      </select>
       <label for="first-name">First Name</label>
       <input type="text" id="first-name" name="first-name" required>
       <label for="last-name">Last Name</label>
       <input type="text" id="last-name" name="last-name" required>
+      <label for="age">Age</label>
+      <input type="number" id="age" name="age" required>
+      <label for="gender">Gender</label>
+      <select id="gender" name="gender" required>
+        <option value="" selected disabled>Select your gender</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+      </select>
+      <label for="nickname">Nickname</label>
+      <input type="text" id="nickname" name="nickname" required>
       <label for="email">E-mail</label>
       <input type="email" id="email" name="email" required>
       <label for="password">Password</label>
@@ -200,6 +201,3 @@ let convchathtml = `
       </div>
     </div>
   `;
-
-
-  
