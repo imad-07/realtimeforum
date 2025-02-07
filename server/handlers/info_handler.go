@@ -2,7 +2,6 @@ package handler
 
 import (
 	"database/sql"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -44,13 +43,12 @@ func (h *InfoHandler) Info(w http.ResponseWriter, r *http.Request) {
 	}
 	// Get Info Data
 	infoData, err := h.InfoService.GetInfoData(uid)
-	fmt.Println(infoData)
 	if err != nil {
 		if err == sqlite3.ErrLocked {
 			helpers.WriteJson(w, http.StatusLocked, struct {
 				Message string `json:"message"`
 			}{Message: "Database Locked"})
-				return
+			return
 		}
 
 		helpers.WriteJson(w, http.StatusInternalServerError, struct {
@@ -61,7 +59,6 @@ func (h *InfoHandler) Info(w http.ResponseWriter, r *http.Request) {
 	if errCookie == nil && !helpers.CheckExpiredCookie(userUID.Value, time.Now(), h.InfoService.InfoData.Db) {
 		infoData.Authorize = false
 		DeleteSessionCookie(w, userUID.Value)
-		fmt.Println(helpers.CheckExpiredCookie(userUID.Value, time.Now(), h.InfoService.InfoData.Db) )
 	}
 
 	helpers.WriteJson(w, http.StatusOK, infoData)

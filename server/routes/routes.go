@@ -15,6 +15,8 @@ func Routes(db *sql.DB) *http.ServeMux {
 	commentHandler := handler.NewCommentHandler(db)
 	userHandler := handler.NewUserHandler(db)
 	reactHandler := handler.NewReactHandler(db)
+	wshandler := handler.NewWshandler(db)
+	lo := handler.NewLo(db)
 
 	postMultiplexer := PostMuxType{DB: db}
 
@@ -37,7 +39,7 @@ func Routes(db *sql.DB) *http.ServeMux {
 	})
 	mux.HandleFunc("/api/post/", postMultiplexer.PostMux)
 
-	//mux.HandleFunc("GET /post/", handler.ServePostPage)
+	// mux.HandleFunc("GET /post/", handler.ServePostPage)
 
 	// Home Endpoint
 	mux.HandleFunc("/", handler.HomeHandler)
@@ -49,14 +51,19 @@ func Routes(db *sql.DB) *http.ServeMux {
 	loginRateLimiter := ratelimiter.LoginLimiter.RateMiddlewareAuth(http.HandlerFunc(userHandler.LoginHandler), 500, time.Minute)
 	signupRateLimiter := ratelimiter.SignupLimiter.RateMiddlewareAuth(http.HandlerFunc(userHandler.SignUpHandler), 5, time.Minute)
 	mux.Handle("/api/login", loginRateLimiter)
-	//mux.HandleFunc("/login", userHandler.ServeLoginPage)
+	// mux.HandleFunc("/login", userHandler.ServeLoginPage)
 	mux.Handle("/api/signup", signupRateLimiter)
-	//mux.HandleFunc("/signup", userHandler.ServeSignUpPage)
-	//mux.HandleFunc("/commingsoon", handler.ServeFeaturesPage)
+	// mux.HandleFunc("/signup", userHandler.ServeSignUpPage)
+	// mux.HandleFunc("/commingsoon", handler.ServeFeaturesPage)
 
 	// Reactions endpoint
 	reactionRateLimiter := ratelimiter.ReactionsLimiter.RateMiddleware(http.HandlerFunc(reactHandler.ReactHandler), 10, 500*time.Millisecond, db)
 	mux.Handle("/api/reaction", reactionRateLimiter)
+
+	// Ws endpoint
+	mux.HandleFunc("/api/ws", wshandler.Wshandler)
+	// logout endpoint
+	mux.HandleFunc("/api/logout", lo.Logout)
 
 	go func() {
 		for {

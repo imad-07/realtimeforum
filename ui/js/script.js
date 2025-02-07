@@ -1,9 +1,9 @@
-import {sidebarhtml, frontcard, backcard, commenthtml, commentdivhtml, postdivhtml} from "/ui/js/components.js";
+import {sidebarhtml, frontcard, backcard, commenthtml, commentdivhtml, postdivhtml, chathtml} from "/ui/js/components.js";
 var info = {}
+let socket
 await getInfoData().then(i =>{
-  info = i 
+  info = i
 })
-console.log(info)
 let num = 0
 let loading = false; 
 let isSubmitting = false;
@@ -18,9 +18,11 @@ function createSidebar() {
 })
 let homebtn = document.querySelector(".Home")
 homebtn.addEventListener('click',function(){
+  let c = document.querySelector(".chat"); c ? c.style.display = "none": null
   let inp = document.querySelector(".post.beta")
   if (!inp){
   loadPosts(0).then(posts => {
+    num = 1
     let ps = document.createElement("div")
     ps.classList.add("posts-section")
     ps.appendChild(postin())
@@ -35,7 +37,11 @@ homebtn.addEventListener('click',function(){
 })
 let chatbtn = document.querySelector(".Chat")
 chatbtn.addEventListener('click',function(){
-  document.querySelector(".posts-section").remove()
+  let p = document.querySelector(".posts-section"); p ? p.remove(): null
+  let chat = document.querySelector(".chat")
+  if (chat){
+  chat.style.display = "block"
+  }
 })
   };
   document.querySelectorAll('.like, .dislike, .comment').forEach((element) => {
@@ -77,7 +83,6 @@ function createCard() {
   card.classList.remove('flipped');
   });
   frontSide.querySelector('form').addEventListener("submit",async function(e){
-    console.log("clicked")
      e.preventDefault()
     if (!isSubmitting){
      isSubmitting = true;
@@ -316,7 +321,6 @@ function createPost(Post) {
     }
     let addpostbutton = postinput.querySelector(".addpost")
 
-    console.log("hello",addpostbutton)
     addpostbutton.addEventListener("click",async function() {
       let content = postinput.querySelector(".post-content.input").value
       let title = postinput.querySelector(".post-title.input").value
@@ -406,7 +410,6 @@ function createPost(Post) {
   }
  }
 async function sendlogininfo(user){
-  console.log(1)
   try {
     const data = await fetch("/api/login", {
       method: "post",
@@ -416,6 +419,7 @@ async function sendlogininfo(user){
       body: JSON.stringify(user),
     });
     if (data.ok) {
+      getInfoData()
       servehome()
     } else {
       console.log( await data.text());
@@ -446,9 +450,9 @@ async function servehome(){
  })
 }
 async function logout(){
-      document.querySelector(".container").innerHTML = "";
-      createCard()
-      document.cookie ="session_token=;Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;"  
+  await fetch("/api/logout")
+  socket.close()
+  location.reload()
 }
 async function fetchPosts(num){
   const res = await fetch(`/api/post/?page-number=${num}`);
@@ -466,12 +470,15 @@ async function loadPosts(num) {
   }
   return posts;
 }
-async function getInfoData(){
+async function getInfoData() {
   const res = await fetch("/api/info");
-  const data = await res.json()
-  if (res.ok) {
-    return data;
+  const data = await res.json();
+
+  if (data.authorize) {
+    info = data;
+    Hanldews();
   }
+  return data;
 }
 async function fetchComments(postId, cnum){
   const res = await fetch(`/api/post/${postId}/comments/${cnum}`);
@@ -525,4 +532,68 @@ async function loadcomment(contentInput,postId){
   await getInfoData().then(i =>{
     info = i 
   })
-}());
+}()); 
+
+async function Hanldews() {
+  console.log("Attempting WebSocket connection...");
+  
+   socket = new WebSocket(`/api/ws`);
+
+  socket.onopen = () => {
+    console.log("WebSocket connection established!");
+  };
+
+  socket.onerror = (error) => {
+    console.error("WebSocket error:", error);
+  };
+
+  socket.onclose = () => {
+    console.log("WebSocket connection closed.");
+  };
+
+  socket.addEventListener("message", (event) => {
+    console.log("Data arrived");
+    let data;
+    try {
+      data = JSON.parse(event.data);
+    } catch (e) {
+      console.error("Invalid JSON received:", event.data);
+      return;
+    }
+
+    if (Array.isArray(data)) {
+      let chat = document.querySelector(".chat");
+      if (!chat) {
+        chat = document.createElement("div");
+        chat.classList.add("chat");
+        chat.style.display = "none"; 
+        chat.innerHTML = chathtml; 
+        document.querySelector(".container").appendChild(chat);
+      }
+
+      let ul = chat.querySelector("ul");
+      if (!ul) {
+        ul = document.createElement("ul");
+        chat.appendChild(ul);
+      }
+
+      data.forEach((us) => {
+        let existingUser = document.querySelector(`#${us.username}`);
+        if (!existingUser) {
+          let userElement = document.createElement("li");
+          userElement.id = us.username;
+          userElement.textContent = us.username;
+          userElement.style.color = us.State ? "green" : "black"; 
+          ul.appendChild(userElement);
+        }
+      });
+
+      chat.style.display = "block"; 
+      console.log(data);
+    } else {
+      if (data.type === "signal-off") {
+        console.log("User went offline:", data);
+      }
+    }
+  });
+}

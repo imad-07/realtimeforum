@@ -16,6 +16,12 @@ type WsData struct {
 	Db *sql.DB
 }
 
+type User struct {
+	Username string `json:"username"`
+	Id       string `json:"id"`
+	State    bool   `json:"state`
+}
+
 func (Ws *WsData) Insertconv(msg Message) {
 	// check user existence
 	// check message validity and lentgh
@@ -54,4 +60,27 @@ func (Ws *WsData) Getconv(Sender, Receiver string, num int) ([]Message, error) {
 		messages = append(messages, msg)
 	}
 	return messages, nil
+}
+
+func (Ws *WsData) Getusers(username string) []User {
+	var users []User
+	query := `
+        SELECT username, id
+        FROM user_profile 
+        WHERE (username != ?)
+        ORDER BY username ASC;
+    `
+	rows, err := Ws.Db.Query(query, username)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for rows.Next() {
+		var user User
+		if err := rows.Scan(&user.Username, &user.Id); err != nil {
+			log.Fatal(err)
+		} else {
+			users = append(users, user)
+		}
+	}
+	return users
 }

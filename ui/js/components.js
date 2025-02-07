@@ -1,4 +1,4 @@
-export {sidebarhtml, frontcard, backcard, commenthtml, commentdivhtml, postdivhtml}
+export {sidebarhtml, frontcard, backcard, commenthtml, commentdivhtml, postdivhtml, chathtml}
 
 let sidebarhtml = (username) => `
     <div class="profile-section">
@@ -139,3 +139,7 @@ let commentdivhtml = (username) =>`
       <button>Post-It!</button>
     </div>
   `
+  let chathtml = `<div class="chat">
+        <ul class="users">
+        </ul>
+    </div>`

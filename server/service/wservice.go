@@ -3,47 +3,114 @@ package service
 import (
 	"fmt"
 	"sync"
-	"time"
 
 	"forum/server/data"
+	"forum/server/shareddata"
 
 	"github.com/gorilla/websocket"
 )
 
 type Wservice struct {
-	wsdata data.WsData
+	Wsdata data.WsData
 }
 
 var (
-	clients = make(map[int]*websocket.Conn) // username -> WebSocket connection
+	Clients = make(map[string][]*websocket.Conn)
 	mutex   = sync.Mutex{}
 )
 
-type Message struct {
-	Sender   int       `json:"sender"`
-	Receiver int       `json:"receiver"`
-	Time     time.Time `json:"time"`
-	Text     string    `json:"text"`
-}
+// Register a new WebSocket connection for a user
+func (Ws *Wservice) RegisterConnection(user string, conn *websocket.Conn) {
 
-func (Ws *Wservice) sendMessageToUser(msg Message) {
-	mutex.Lock()
-	receiverConn, exists := clients[msg.Receiver]
-	mutex.Unlock()
+	 Ws.HandleConnection(user, conn)
 
-	if exists {
-		err := receiverConn.WriteJSON(msg)
-		if err != nil {
-			fmt.Println("Error sending message:", err)
-		}
+	username, userid := GetUser(Ws.Wsdata.Db, user)
+	if userid != 0 {
+		mutex.Lock()
+		Clients[username] = append(Clients[username], conn)
+		mutex.Unlock()
+		fmt.Println(username, "registered")
+		var msg shareddata.ChatMessage
+		msg.Type = "signal-on"
+		msg.Content = username
+		BroadcastMessage(username, msg)
 	} else {
-		fmt.Println("User", msg.Receiver, "not connected")
+		fmt.Println("Attempt to register invalid user")
 	}
 }
 
-func (Ws *Wservice) RegisterConnection(user string, conn *websocket.Conn) {
-	_, userid := GetUser(Ws.wsdata.Db, user)
+// Handle an incoming WebSocket connection
+func (Ws *Wservice) HandleConnection(uuid string, conn *websocket.Conn) {
+	username, _ := GetUser(Ws.Wsdata.Db, uuid)
+
 	mutex.Lock()
-	clients[userid] = conn
+	users := Ws.Wsdata.Getusers(username)
+	for i := 0; i < len(users); i++ {
+		if _, exists := Clients[users[i].Username]; exists {
+			users[i].State = true
+		}
+	}
 	mutex.Unlock()
+
+	conn.WriteJSON(users)
+}
+
+// Remove a WebSocket connection for a user
+func (Ws *Wservice) DeleteConnection(uuid string, conn *websocket.Conn) {
+	username, _ := GetUser(Ws.Wsdata.Db, uuid)
+	mutex.Lock()
+	defer mutex.Unlock()
+	// Notify others the user is offline
+	var msg shareddata.ChatMessage
+	msg.Type = "signal-off"
+	msg.Content = username
+	BroadcastMessage(username, msg)
+	// Remove only the disconnected connection
+	connections := Clients[username]
+	fmt.Println(connections)
+	for i := 0; i < len(connections); i++ {
+		if connections[i] == conn {
+			Clients[username] = append(connections[:i], connections[i+1:]...) 
+			// Remove the connection
+			break
+		}
+	}
+	if len(Clients[username]) == 0 {
+		delete(Clients, username)
+	}
+}
+func Notify(username string){
+	fmt.Println(Clients)
+	var message shareddata.ChatMessage
+	message.Content = username
+	message.Type = "signal-off"
+	for userID, connections := range Clients {
+		if userID == username {
+			continue
+		}
+		for _, conn := range connections {
+			fmt.Println("111")
+			err := conn.WriteJSON(message)
+			if err != nil {
+				fmt.Println("Error sending message:", err)
+			}
+		}
+	}
+}
+// Broadcast a message to all WebSocket connections except the sender
+func BroadcastMessage(senderID string, message shareddata.ChatMessage) {
+	mutex.Lock()
+	fmt.Println("Broadcasting message:",message)
+	defer mutex.Unlock()
+	for userID, connections := range Clients {
+		if userID == senderID {
+			continue
+		}
+		for _, conn := range connections {
+			err := conn.WriteJSON(message)
+			if err != nil {
+				fmt.Println("Error sending message:", err)
+			}
+		}
+	}
 }
