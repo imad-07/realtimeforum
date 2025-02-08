@@ -175,6 +175,11 @@ func (h *UserHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	SetSessionCookie(w, user.Uuid)
+	var message shareddata.ChatMessage
+	username, _ := service.GetUser(h.UserService.UserData.DB, user.Uuid)
+	message.Content = username
+	message.Type = "signal-on"
+	service.Notify(username,message)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("You Logged In Successfuly!"))
 	// http.Redirect(w, r, "/", http.StatusSeeOther)

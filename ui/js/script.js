@@ -537,7 +537,7 @@ async function loadcomment(contentInput,postId){
 async function Hanldews() {
   console.log("Attempting WebSocket connection...");
   
-   socket = new WebSocket(`/api/ws`);
+   socket = new WebSocket('ws://localhost:8081/api/ws');
 
   socket.onopen = () => {
     console.log("WebSocket connection established!");
@@ -592,7 +592,19 @@ async function Hanldews() {
       console.log(data);
     } else {
       if (data.type === "signal-off") {
-        console.log("User went offline:", data);
+        let user = document.querySelector(`#${data.content}`)
+        user.style.color = "black"
+      }else if (data.type === "signal-on") {
+        let user = document.querySelector(`#${data.content}`)
+        if (!user){
+           user = document.createElement("li");
+           console.log(data);
+           
+          user.id = data.content
+          user.textContent=data.content
+          document.querySelector(".users").appendChild(user)
+        }
+        user.style.color = "green"
       }
     }
   });

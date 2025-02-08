@@ -28,7 +28,10 @@ func (Lo *Lo) Logout(w http.ResponseWriter, r *http.Request) {
 	}
 	username, _ := service.GetUser(Lo.db, user.Value)
 	delete(service.Clients, username)
-	service.Notify(username)
+	var message shareddata.ChatMessage
+	message.Content = username
+	message.Type = "signal-off"
+	service.Notify(username,message)
 	http.SetCookie(w, &http.Cookie{
 		Name:   shareddata.SessionName,
 		Value:  "",
