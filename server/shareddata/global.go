@@ -88,9 +88,9 @@ var CommentErrors struct {
 }
 
 type ChatMessage struct {
-	Type      string    `json:"type"`      // e.g., "message", "notification", "error"
-	Sender    string    `json:"sender"`    // sender's identifier
-	Recipient string    `json:"recipient"` // recipient's identifier
-	Content   string    `json:"content"`   // the message content
-	Timestamp time.Time `json:"timestamp"` // when the message was sent
+	Type      string    `json:"type"`
+	Sender    string    `json:"sender"`
+	Reciver   string    `json:"recipient"`
+	Content   string    `json:"content"`
+	Timestamp time.Time `json:"timestamp"`
 }

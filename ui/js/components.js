@@ -1,4 +1,4 @@
-export {sidebarhtml, frontcard, backcard, commenthtml, commentdivhtml, postdivhtml, chathtml}
+export {sidebarhtml, frontcard, backcard, commenthtml, commentdivhtml, postdivhtml, chathtml, mymsg, othermsg}
 
 let sidebarhtml = (username) => `
     <div class="profile-section">
@@ -139,7 +139,26 @@ let commentdivhtml = (username) =>`
       <button>Post-It!</button>
     </div>
   `
-  let chathtml = `<div class="chat">
-        <ul class="users">
-        </ul>
+  let chathtml = (username) =>`<div class="card-container">
+  <div class="card-header">
+    <div class="img-avatar"></div>
+    <div class="text-chat">Chat with${username}</div>
+  </div>
+  <div class="card-body">
+    <div class="messages-container">
+    </div>
+    <div class="message-input">
+      <form>
+        <textarea placeholder="Type your message here" class="message-send"></textarea>
+        <button type="submit" class="button-send">Send</button>
+      </form>
+    </div>
+  </div>
+</div>
+`
+let mymsg = (message)=>`<div class="message-box right">
+            <p>${message}</p>
+        </div>`
+let othermsg = (message)=>`<div class="message-box left">
+        <p>${message}</p>
     </div>`

@@ -17,6 +17,7 @@ func Routes(db *sql.DB) *http.ServeMux {
 	reactHandler := handler.NewReactHandler(db)
 	wshandler := handler.NewWshandler(db)
 	lo := handler.NewLo(db)
+	msg := handler.NewMsghandler(db)
 
 	postMultiplexer := PostMuxType{DB: db}
 
@@ -64,7 +65,8 @@ func Routes(db *sql.DB) *http.ServeMux {
 	mux.HandleFunc("/api/ws", wshandler.Wshandler)
 	// logout endpoint
 	mux.HandleFunc("/api/logout", lo.Logout)
-
+	// messages endpoint
+	mux.HandleFunc("/api/msg", msg.Maghandler)
 	go func() {
 		for {
 			time.Sleep(120 * time.Minute)

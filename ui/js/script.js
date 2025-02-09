@@ -1,4 +1,4 @@
-import {sidebarhtml, frontcard, backcard, commenthtml, commentdivhtml, postdivhtml, chathtml} from "/ui/js/components.js";
+import {sidebarhtml, frontcard, backcard, commenthtml, commentdivhtml, postdivhtml, chathtml, mymsg, othermsg} from "/ui/js/components.js";
 var info = {}
 let socket
 await getInfoData().then(i =>{
@@ -40,7 +40,7 @@ chatbtn.addEventListener('click',function(){
   let p = document.querySelector(".posts-section"); p ? p.remove(): null
   let chat = document.querySelector(".chat")
   if (chat){
-  chat.style.display = "block"
+  chat.style.display = "flex"
   }
 })
   };
@@ -476,7 +476,9 @@ async function getInfoData() {
 
   if (data.authorize) {
     info = data;
+    if (!socket){
     Hanldews();
+    }
   }
   return data;
 }
@@ -494,7 +496,6 @@ async function loadComments(postId,cnum){
 }
 async function loadaddPost(contentInput, categories, title){
   let response = await addpost(contentInput,categories, title)
-  console.log(response)
   return response.ok
 }
 async function addpost(contentInput, categories, Title){
@@ -533,7 +534,6 @@ async function loadcomment(contentInput,postId){
     info = i 
   })
 }()); 
-
 async function Hanldews() {
   console.log("Attempting WebSocket connection...");
   
@@ -556,6 +556,7 @@ async function Hanldews() {
     let data;
     try {
       data = JSON.parse(event.data);
+      console.log(data)
     } catch (e) {
       console.error("Invalid JSON received:", event.data);
       return;
@@ -567,8 +568,25 @@ async function Hanldews() {
         chat = document.createElement("div");
         chat.classList.add("chat");
         chat.style.display = "none"; 
-        chat.innerHTML = chathtml; 
+        chat.innerHTML = chathtml("");
         document.querySelector(".container").appendChild(chat);
+        let chatbtn = document.querySelector(".button-send")
+        chatbtn.addEventListener("click",e =>{
+          e.preventDefault()
+          let rec = document.querySelector(".text-chat").id
+          if (rec == "") return
+          let msg = document.querySelector(".message-send").value
+          const message = {
+            type: "message",
+            sender: info.username,
+            recipient: rec.toString(),
+            content: msg
+          }
+          socket.send(JSON.stringify(message))
+          let msgcontainer = document.querySelector(".messages-container")
+          Handledisplaymsgs([message],msgcontainer)
+
+        })
       }
 
       let ul = chat.querySelector("ul");
@@ -583,29 +601,81 @@ async function Hanldews() {
           let userElement = document.createElement("li");
           userElement.id = us.username;
           userElement.textContent = us.username;
-          userElement.style.color = us.State ? "green" : "black"; 
+          userElement.classList.add("chat-user")
+          if (us.State) {
+            userElement.classList.add("online");
+        } 
+        let offset = 0
           ul.appendChild(userElement);
+          userElement.addEventListener("click",async function(){
+            let chath = document.querySelector(".text-chat")
+            chath.innerHTML = `Chat With ${us.username}`
+            chath.id = `${us.username}`
+            let isloading = false
+            let msgcontainer = document.querySelector(".messages-container")
+            let msgs = await loadMessages(us.username,offset)
+            Handledisplaymsgs(msgs,msgcontainer,us.username)
+            msgcontainer.addEventListener("scroll",async function (){
+              if ((msgcontainer.scrollTop ==0 )&& !isloading) {
+                console.log("getting hadouk lmsgat")
+                isloading == true
+                 msgs = await loadMessages(us.username,offset)
+                Handledisplaymsgs(msgs,msgcontainer,us.username)
+                offset++
+                isloading = false
+              }
+            })
+          })
         }
       });
-
-      chat.style.display = "block"; 
-      console.log(data);
+      chat.style.display = "none"; 
     } else {
       if (data.type === "signal-off") {
         let user = document.querySelector(`#${data.content}`)
-        user.style.color = "black"
+        user.classList = ["chat-user"]
       }else if (data.type === "signal-on") {
         let user = document.querySelector(`#${data.content}`)
         if (!user){
            user = document.createElement("li");
-           console.log(data);
-           
           user.id = data.content
-          user.textContent=data.content
+          user.textContent = data.content
+          user.classList.add("chat-user")
           document.querySelector(".users").appendChild(user)
         }
-        user.style.color = "green"
+        user.classList.add("online")
+      }else if (data.type === "message"){
+        console.log("rfws")
+        let chat = document.querySelector(`#${data.sender}`)
+        if (!chat){
+
+        }else{
+          console.log(data)
+          Handledisplaymsgs([data],document.querySelector(".messages-container"),22)
+        }
       }
     }
   });
+}
+async function loadMessages(userId, offset) {
+  console.log(`/api/msg?user_id=${userId}&offset=${offset}`)
+  const response = await fetch(`/api/msg?user_id=${userId}&offset=${offset}`);
+  const msgs = await response.json();
+  console.log(msgs.messages)
+  return msgs.messages
+}
+function Handledisplaymsgs(msgs,msgcontainer,rec){
+  msgs.forEach(msg =>{
+    let msghtml 
+    if(msg.sender == rec || rec == 22){
+      msghtml = document.createRange().createContextualFragment(othermsg(msg.content))
+    }else{
+      msghtml = document.createRange().createContextualFragment(mymsg(msg.content))
+    }
+    if (rec == 22 || !rec){
+      msgcontainer.appendChild(msghtml)
+    }else{
+      msgcontainer.prepend(msghtml)
+    }
+  })
+  
 }

@@ -41,7 +41,6 @@ func (h *UserHandler) SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	// Parse Data
 	var user shareddata.User
 	err := json.NewDecoder(r.Body).Decode(&user)
-	fmt.Println(user)
 	if err != nil {
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return

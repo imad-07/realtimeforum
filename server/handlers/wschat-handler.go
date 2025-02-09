@@ -34,13 +34,14 @@ var upgrader = websocket.Upgrader{
 }
 
 func (Ws *WsHandler) Wshandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println(r)
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		fmt.Println("WebSocket upgrade failed:", err)
 		http.Error(w, "Could not open websocket connection", http.StatusBadRequest)
 		return
 	}
-
+fmt.Printf("hello there")
 	// Get user session cookie
 	user, err := r.Cookie(shareddata.SessionName)
 	if err != nil {
@@ -55,9 +56,16 @@ func (Ws *WsHandler) Wshandler(w http.ResponseWriter, r *http.Request) {
 
 	// Read messages from WebSocket connection
 	for {
-		_, _, err := conn.ReadMessage()
+		var msg shareddata.ChatMessage
+		err := conn.ReadJSON(&msg)
+		username, _ := service.GetUser(Ws.WsService.Wsdata.Db, user.Value)
+		msg.Sender = username
 		if err != nil {
 			break
+		}
+		fmt.Println(msg)
+		if msg.Type == "message"{
+			Ws.WsService.SendPrivateMessage(msg)
 		}
 	}
 	Ws.WsService.DeleteConnection(user.Value, conn)

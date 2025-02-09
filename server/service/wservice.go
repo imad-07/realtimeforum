@@ -21,15 +21,16 @@ var (
 
 // Register a new WebSocket connection for a user
 func (Ws *Wservice) RegisterConnection(user string, conn *websocket.Conn) {
-
 	Ws.HandleConnection(user, conn)
-
+	fmt.Println("connregistred ", Clients)
+	if _, exist := Clients[user]; exist {
+		return
+	}
 	username, userid := GetUser(Ws.Wsdata.Db, user)
 	if userid != 0 {
 		mutex.Lock()
 		Clients[username] = append(Clients[username], conn)
 		mutex.Unlock()
-		fmt.Println(username, "registered")
 		var msg shareddata.ChatMessage
 		msg.Type = "signal-on"
 		msg.Content = username
@@ -37,6 +38,7 @@ func (Ws *Wservice) RegisterConnection(user string, conn *websocket.Conn) {
 	} else {
 		fmt.Println("Attempt to register invalid user")
 	}
+	return
 }
 
 // Handle an incoming WebSocket connection
@@ -61,7 +63,6 @@ func (Ws *Wservice) DeleteConnection(uuid string, conn *websocket.Conn) {
 	mutex.Lock()
 	defer mutex.Unlock()
 	connections := Clients[username]
-	fmt.Println(connections)
 	for i := 0; i < len(connections); i++ {
 		if connections[i] == conn {
 			Clients[username] = append(connections[:i], connections[i+1:]...)
@@ -70,10 +71,14 @@ func (Ws *Wservice) DeleteConnection(uuid string, conn *websocket.Conn) {
 	}
 	if len(Clients[username]) == 0 {
 		delete(Clients, username)
+		var message shareddata.ChatMessage
+		message.Content = username
+		message.Type = "signal-off"
+		Notify(username, message)
 	}
 }
+
 func Notify(username string, message shareddata.ChatMessage) {
-	fmt.Println(Clients)
 	for userID, connections := range Clients {
 		if userID == username {
 			continue
@@ -90,7 +95,6 @@ func Notify(username string, message shareddata.ChatMessage) {
 // Broadcast a message to all WebSocket connections except the sender
 func BroadcastMessage(senderID string, message shareddata.ChatMessage) {
 	mutex.Lock()
-	fmt.Println("Broadcasting message:", message)
 	defer mutex.Unlock()
 	for userID, connections := range Clients {
 		if userID == senderID {
@@ -102,5 +106,25 @@ func BroadcastMessage(senderID string, message shareddata.ChatMessage) {
 				fmt.Println("Error sending message:", err)
 			}
 		}
+	}
+}
+
+func (Ws *Wservice) SendPrivateMessage(msg shareddata.ChatMessage) {
+	reciver, exists := Clients[msg.Reciver]
+	fmt.Println(reciver)
+	if exists {
+		for _, conn := range reciver {
+			err := conn.WriteJSON(msg)
+			if err != nil {
+				fmt.Println("Error sending private message:", err)
+				conn.Close()
+			} else {
+				fmt.Println("error cannot send message")
+			}
+
+		}
+	}
+	if Ws.Wsdata.Checkuser(msg.Reciver) {
+		Ws.Wsdata.Insertconv(msg)
 	}
 }
