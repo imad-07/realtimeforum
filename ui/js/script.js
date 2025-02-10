@@ -343,7 +343,7 @@ function createPost(Post) {
         if(posts!= "baraka elik"&& posts != "no posts"){
           posts.forEach(post => createPost(post));
           postsection.scrollTo(0, postsection.scrollHeight*0.80)
-          num = num+1
+          num += 1
           loading = false;
         }
         
@@ -460,6 +460,7 @@ async function fetchPosts(num){
   return data;
 }
 async function loadPosts(num) {
+  console.log(num)
   let response = await fetchPosts(num);
   let posts = response.Posts;
   if (posts == null){
@@ -613,6 +614,7 @@ async function Hanldews() {
             chath.id = `${us.username}`
             let isloading = false
             let msgcontainer = document.querySelector(".messages-container")
+            msgcontainer.innerHTML = ""
             let msgs = await loadMessages(us.username,offset)
             Handledisplaymsgs(msgs,msgcontainer,us.username)
             msgcontainer.addEventListener("scroll",async function (){

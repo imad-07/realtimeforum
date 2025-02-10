@@ -443,6 +443,8 @@ ul {
 
 .message-box {
   width: 100px;
+  word-break: break-word;
+  overflow-wrap: break-word;
   padding: 10px;
   margin-bottom: 5px;
   border-radius: 10px;
