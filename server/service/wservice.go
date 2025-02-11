@@ -22,7 +22,6 @@ var (
 // Register a new WebSocket connection for a user
 func (Ws *Wservice) RegisterConnection(user string, conn *websocket.Conn) {
 	Ws.HandleConnection(user, conn)
-	fmt.Println("connregistred ", Clients)
 	if _, exist := Clients[user]; exist {
 		return
 	}
@@ -111,7 +110,6 @@ func BroadcastMessage(senderID string, message shareddata.ChatMessage) {
 
 func (Ws *Wservice) SendPrivateMessage(msg shareddata.ChatMessage) {
 	reciver, exists := Clients[msg.Reciver]
-	fmt.Println(reciver)
 	if exists {
 		for _, conn := range reciver {
 			err := conn.WriteJSON(msg)

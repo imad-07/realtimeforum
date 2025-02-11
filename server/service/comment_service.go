@@ -42,25 +42,12 @@ func (s *CommentService) AddComment(comment shareddata.Comment) error {
 
 func (s *CommentService) GetComments(postId, page, userId int) ([]shareddata.ShowComment, error) {
 	// Validate page number
-	if page <= 0 {
+	if page < 0 {
 		return nil, errors.New(shareddata.CommentErrors.InvalidPage)
 	}
-
-	// Transfer "page" to "from" (page 1 mean page one that has 100 comment from 1 mean comment 1)
-	from := (data.CommentsPerPage * page) - data.CommentsPerPage
-
-	// Get the comments count number to check if the page number is right
-	commentsCount, err := s.CommentData.GetCommentsCount(postId)
-	if err != nil {
-		return nil, err
-	}
-
-	if from >= commentsCount {
-		return nil, errors.New(shareddata.CommentErrors.InvalidPage)
-	}
-
 	// Get comments
-	return s.CommentData.GetCommentsFrom(from, postId, userId)
+	cmts, err := s.CommentData.GetCommentsFrom(page, postId, userId)
+	return cmts, err
 }
 
 func (s *CommentService) GetCommentMetaData(postId int) (shareddata.CommentMetaData, error) {

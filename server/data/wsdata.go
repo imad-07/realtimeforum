@@ -2,6 +2,7 @@ package data
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	"forum/server/shareddata"
@@ -30,14 +31,22 @@ func (Ws *WsData) Insertconv(msg shareddata.ChatMessage) {
 }
 
 func (Ws *WsData) Getconv(Sender, Receiver string, num int) ([]shareddata.ChatMessage, error) {
+	if num == 0 {
+		rw := Ws.Db.QueryRow(`SELECT id FROM user_chats WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?) ORDER BY id DESC LIMIT 1;`, Sender, Receiver, Receiver, Sender)
+		err := rw.Scan(&num)
+		if err != nil {
+			fmt.Println(err)
+		}
+		num++
+	}
 	query := `
-        SELECT sender, receiver, message, time 
+        SELECT sender, receiver, message, time, id
         FROM user_chats 
-        WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?)
+        WHERE id < ? AND ((sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?))
         ORDER BY id DESC 
-        LIMIT 10 OFFSET ?;
+        LIMIT 10;
     `
-	rows, err := Ws.Db.Query(query, Sender, Receiver, Receiver, Sender, num)
+	rows, err := Ws.Db.Query(query, num, Sender, Receiver, Receiver, Sender)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -45,7 +54,7 @@ func (Ws *WsData) Getconv(Sender, Receiver string, num int) ([]shareddata.ChatMe
 	var messages []shareddata.ChatMessage
 	for rows.Next() {
 		var msg shareddata.ChatMessage
-		if err := rows.Scan(&msg.Sender, &msg.Reciver, &msg.Content, &msg.Timestamp); err != nil {
+		if err := rows.Scan(&msg.Sender, &msg.Reciver, &msg.Content, &msg.Timestamp, &msg.Id); err != nil {
 			return nil, err
 		}
 		messages = append(messages, msg)

@@ -93,4 +93,5 @@ type ChatMessage struct {
 	Reciver   string    `json:"recipient"`
 	Content   string    `json:"content"`
 	Timestamp time.Time `json:"timestamp"`
+	Id        string    `json:"id"`
 }

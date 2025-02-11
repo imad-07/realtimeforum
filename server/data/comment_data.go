@@ -2,6 +2,7 @@ package data
 
 import (
 	"database/sql"
+	"fmt"
 
 	"forum/server/shareddata"
 )
@@ -11,7 +12,7 @@ type CommentData struct {
 	Reactdb ReactionDB
 }
 
-var CommentsPerPage = 20
+var CommentsPerPage = 5
 
 // Insert a comment into the comment table in the database
 func (database *CommentData) InsertComment(comment shareddata.Comment) error {
@@ -30,11 +31,19 @@ func (database *CommentData) CheckPostExist(id int) bool {
 
 // Get Comments from a specific comment row (like from 1 and get the 100 in front of it)
 func (database *CommentData) GetCommentsFrom(from, postId, userId int) ([]shareddata.ShowComment, error) {
+	if from == 0 {
+		rw := database.DB.QueryRow(`SELECT comment_id FROM single_comment ORDER BY comment_id DESC LIMIT 1;`)
+		err := rw.Scan(&from)
+		if err != nil{
+			fmt.Println(err)
+		}
+		from++
+	}
 	rows, err := database.DB.Query(
 		`SELECT comment_id, comment_author, comment_content, comment_date, comment_likes, comment_dislikes
 		FROM single_comment
-		WHERE post_id = ? ORDER BY comment_date DESC LIMIT ? OFFSET ?`,
-		postId, CommentsPerPage, from)
+		WHERE post_id = ? AND comment_id < ? ORDER BY comment_date DESC LIMIT ?`,
+		postId, from, CommentsPerPage)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +55,6 @@ func (database *CommentData) GetCommentsFrom(from, postId, userId int) ([]shared
 		comment.IsLiked, comment.IsDisliked = database.Reactdb.CheckIfLikedComment(comment.Id, userId)
 		comments = append(comments, comment)
 	}
-
 	return comments, err
 }
 

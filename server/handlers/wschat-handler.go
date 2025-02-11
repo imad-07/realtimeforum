@@ -34,14 +34,12 @@ var upgrader = websocket.Upgrader{
 }
 
 func (Ws *WsHandler) Wshandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(r)
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		fmt.Println("WebSocket upgrade failed:", err)
 		http.Error(w, "Could not open websocket connection", http.StatusBadRequest)
 		return
 	}
-fmt.Printf("hello there")
 	// Get user session cookie
 	user, err := r.Cookie(shareddata.SessionName)
 	if err != nil {
@@ -63,7 +61,6 @@ fmt.Printf("hello there")
 		if err != nil {
 			break
 		}
-		fmt.Println(msg)
 		if msg.Type == "message"{
 			Ws.WsService.SendPrivateMessage(msg)
 		}

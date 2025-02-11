@@ -2,7 +2,6 @@ package handler
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -21,7 +20,6 @@ func NewLo(B *sql.DB) Lo {
 }
 
 func (Lo *Lo) Logout(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("logout")
 	user, err := r.Cookie(shareddata.SessionName)
 	if err != nil {
 		log.Fatal(err)
@@ -31,7 +29,7 @@ func (Lo *Lo) Logout(w http.ResponseWriter, r *http.Request) {
 	var message shareddata.ChatMessage
 	message.Content = username
 	message.Type = "signal-off"
-	service.Notify(username,message)
+	service.Notify(username, message)
 	http.SetCookie(w, &http.Cookie{
 		Name:   shareddata.SessionName,
 		Value:  "",

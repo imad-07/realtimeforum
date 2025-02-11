@@ -33,13 +33,12 @@ func (d *PostData) InsertPost(post shareddata.Post) (int, error) {
 	query := "INSERT INTO post (title, content, user_id) VALUES (?, ?, ?)"
 	rowResult, err := d.Db.Exec(query, post.Title, post.Content, post.UserID)
 	if err != nil {
-		fmt.Println("chob")
 		return 0, err
 	}
 
 	rowId, err := rowResult.LastInsertId()
 	if err != nil {
-		//return 0, err
+		// return 0, err
 	}
 
 	return int(rowId), nil
@@ -50,10 +49,18 @@ func (d *PostData) Tablelen(table string, total *int) error {
 	return err
 }
 
-func (d *PostData) ExtractPosts(start int) (*sql.Rows, error) {
+func (d *PostData) ExtractPosts(startid int) (*sql.Rows, error) {
+	if startid == 0{
+		rw := d.Db.QueryRow(`SELECT id FROM post ORDER BY id DESC LIMIT 1;`)
+		err := rw.Scan(&startid)
+		startid++
+		fmt.Println(err)
+	}
 	rows, err := d.Db.Query(`SELECT post_id, post_title, post_content, post_date, post_author, post_likes, post_dislikes, post_comments_count
 	FROM single_post
-   ORDER BY post_date DESC LIMIT ? OFFSET ?`, PostsPerPage, start)
+	WHERE post_id < ?
+    ORDER BY post_date DESC LIMIT ?`, startid, PostsPerPage)
+	fmt.Println(startid)
 	if err != nil {
 		return nil, err
 	}

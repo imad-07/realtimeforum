@@ -71,7 +71,7 @@ func (p *PostHandler) CreatePostHandler(w http.ResponseWriter, r *http.Request) 
 			}{Error: err.Error()})
 			return
 		case shareddata.PostErrors.TitleLength:
-			fmt.Println()
+			fmt.Println(2)
 			helpers.WriteJson(w, http.StatusBadRequest, struct {
 				Error string `json:"error"`
 			}{Error: err.Error()})
@@ -106,8 +106,8 @@ func (p *PostHandler) CreatePostHandler(w http.ResponseWriter, r *http.Request) 
 }
 
 func (p *PostHandler) GetPostHandler(w http.ResponseWriter, r *http.Request) {
-	num, _ := strconv.Atoi(r.URL.Query().Get("page-number"))
-
+	startid, _ := strconv.Atoi(r.URL.Query().Get("start-id"))
+	fmt.Println(startid)
 	postsMetaData, err := p.PostService.GetPostMetaData()
 	if err != nil {
 		if err == sqlite3.ErrLocked {
@@ -129,7 +129,7 @@ func (p *PostHandler) GetPostHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 
 	if (len(query["categorie"]) != 0 && query["categorie"][0] != "") || (len(query["posts"]) != 0 && query["posts"][0] != "") {
-		posts, err := p.PostService.FilterPosts(num, posts, r, id)
+		posts, err := p.PostService.FilterPosts(0, posts, r, id)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				helpers.WriteJson(w, http.StatusOK, PostResponse{MetaData: postsMetaData, Posts: []shareddata.Post{}})
@@ -140,7 +140,7 @@ func (p *PostHandler) GetPostHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		helpers.WriteJson(w, http.StatusOK, PostResponse{Posts: posts, MetaData: postsMetaData})
 	} else {
-		posts, err := p.PostService.GetPost(num, id)
+		posts, err := p.PostService.GetPost(id, startid)
 		if err != nil {
 			switch err {
 			case sql.ErrNoRows:

@@ -69,7 +69,6 @@ func (a *PostService) CreatePost(post shareddata.Post, uuid string) error {
 
 // Add categories to the posts
 func (a *PostService) AddCategoriesToPost(post shareddata.Post) error {
-	fmt.Println(post.Categories)
 	for _, category_name := range post.Categories {
 		// check if the category is exist and get its id
 		category_id, err := a.PostData.GetCategoryId(category_name)
@@ -90,17 +89,16 @@ func (a *PostService) AddCategoriesToPost(post shareddata.Post) error {
 	return nil
 }
 
-func (a *PostService) GetPost(num, userID int) ([]shareddata.Post, error) {
-	start := (num * data.PostsPerPage)
+func (a *PostService) GetPost(userID, startid int) ([]shareddata.Post, error){
 	total := 0
 	err := a.PostData.Tablelen("post", &total)
 	if err != nil {
 		return nil, err
 	}
-	if start > total {
+	if startid > total {
 		return nil, sql.ErrNoRows
 	}
-	row, err := a.PostData.ExtractPosts(start)
+	row, err := a.PostData.ExtractPosts(startid)
 	if err != nil {
 		return nil, err
 	}

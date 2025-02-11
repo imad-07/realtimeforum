@@ -1,10 +1,10 @@
 import {sidebarhtml, frontcard, backcard, commenthtml, commentdivhtml, postdivhtml, chathtml, mymsg, othermsg} from "/ui/js/components.js";
 var info = {}
 let socket
+let lastpost = 0
 await getInfoData().then(i =>{
   info = i
 })
-let num = 0
 let loading = false; 
 let isSubmitting = false;
 function createSidebar() {
@@ -22,7 +22,6 @@ homebtn.addEventListener('click',function(){
   let inp = document.querySelector(".post.beta")
   if (!inp){
   loadPosts(0).then(posts => {
-    num = 1
     let ps = document.createElement("div")
     ps.classList.add("posts-section")
     ps.appendChild(postin())
@@ -31,6 +30,7 @@ homebtn.addEventListener('click',function(){
    for (let post in posts){
      createPost(posts[post])
     }
+    lastpost = posts[posts.length-1].id
   }
   })
 }
@@ -274,7 +274,7 @@ function createPost(Post) {
     let content = commentinput.querySelector(".coment-content.input").value
     let r = await loadcomment(content,Post.id)
   })
-  let cmtnum = 1
+  let cmtnum = 0
   comment.addEventListener("click", async function(){
     if (commentscontainer.style.display == "none"){
     let cmtloading = false
@@ -282,15 +282,16 @@ function createPost(Post) {
     let cmnts = await loadComments(Post.id,cmtnum);
     if (cmnts !== "baraka elik"){
       cmnts.forEach(cmt => createcomment(cmt,commentscontainer));
-      cmtnum++
+      cmtnum = cmnts[cmnts.length-1].id
     commentscontainer.addEventListener("scroll", async () => {
-      if (commentscontainer.scrollTop + commentscontainer.clientHeight >= commentscontainer.scrollHeight * 0.95 && !cmtloading || cmtnum == 1){
+      if (commentscontainer.scrollTop + commentscontainer.clientHeight >= commentscontainer.scrollHeight * 0.95 && !cmtloading){
     try {
       let cmnts = await loadComments(Post.id,cmtnum);
       if (cmnts !== "baraka elik"){
       cmnts.forEach(cmt => createcomment(cmt,commentscontainer));
       commentscontainer.scrollTo(0, commentscontainer.scrollHeight*0.80)
-      cmtnum = cmtnum+1
+      cmtnum = cmnts[cmnts.length-1].id
+      console.log(cmtnum)
       cmtloading = false;
       }
     } catch (error) {
@@ -339,11 +340,11 @@ function createPost(Post) {
       loading = true;
       console.log("Loading more posts...");
       try {
-        let posts = await loadPosts(num);
+        let posts = await loadPosts(lastpost);
         if(posts!= "baraka elik"&& posts != "no posts"){
           posts.forEach(post => createPost(post));
+          lastpost = posts[posts.length-1].id
           postsection.scrollTo(0, postsection.scrollHeight*0.80)
-          num += 1
           loading = false;
         }
         
@@ -435,12 +436,12 @@ async function servehome(){
   if (!document.querySelector(".sidebar")){
   createSidebar()
   }
- loadPosts(num).then(posts => {
+ loadPosts(lastpost).then(posts => {
   if (posts != "no posts"){
-   num++
   for (let post in posts){
     createPost(posts[post])
    }
+   lastpost = posts[posts.length-1].id
   }else{
     let ps = document.createElement("div")
     ps.classList.add("posts-section")
@@ -454,14 +455,14 @@ async function logout(){
   socket.close()
   location.reload()
 }
-async function fetchPosts(num){
-  const res = await fetch(`/api/post/?page-number=${num}`);
+async function fetchPosts(startid){
+  console.log(startid)
+  const res = await fetch(`/api/post/?start-id=${startid}`);
   const data = await res.json();
   return data;
 }
-async function loadPosts(num) {
-  console.log(num)
-  let response = await fetchPosts(num);
+async function loadPosts(startid) {
+  let response = await fetchPosts(startid);
   let posts = response.Posts;
   if (posts == null){
      return "no posts"
@@ -537,27 +538,20 @@ async function loadcomment(contentInput,postId){
 }()); 
 async function Hanldews() {
   console.log("Attempting WebSocket connection...");
-  
    socket = new WebSocket('ws://localhost:8081/api/ws');
-
   socket.onopen = () => {
     console.log("WebSocket connection established!");
   };
-
   socket.onerror = (error) => {
     console.error("WebSocket error:", error);
   };
-
   socket.onclose = () => {
     console.log("WebSocket connection closed.");
   };
-
   socket.addEventListener("message", (event) => {
-    console.log("Data arrived");
-    let data;
+        let data;
     try {
       data = JSON.parse(event.data);
-      console.log(data)
     } catch (e) {
       console.error("Invalid JSON received:", event.data);
       return;
@@ -588,8 +582,10 @@ async function Hanldews() {
           Handledisplaymsgs([message],msgcontainer)
 
         })
+        let rec = document.querySelector(".text-chat").id
+        let msg = document.querySelector(".message-send")
+        Typing(msg,rec.toString())
       }
-
       let ul = chat.querySelector("ul");
       if (!ul) {
         ul = document.createElement("ul");
@@ -623,7 +619,7 @@ async function Hanldews() {
                 isloading == true
                  msgs = await loadMessages(us.username,offset)
                 Handledisplaymsgs(msgs,msgcontainer,us.username)
-                offset++
+                offset = msgs[msgs.length-1].id
                 isloading = false
               }
             })
@@ -646,26 +642,25 @@ async function Hanldews() {
         }
         user.classList.add("online")
       }else if (data.type === "message"){
-        console.log("rfws")
         let chat = document.querySelector(`#${data.sender}`)
         if (!chat){
-
         }else{
-          console.log(data)
           Handledisplaymsgs([data],document.querySelector(".messages-container"),22)
         }
+      }else if (data.type === "signal-typing"){
+        console.log(data.sender, " is typing")
       }
     }
   });
 }
 async function loadMessages(userId, offset) {
-  console.log(`/api/msg?user_id=${userId}&offset=${offset}`)
   const response = await fetch(`/api/msg?user_id=${userId}&offset=${offset}`);
   const msgs = await response.json();
   console.log(msgs.messages)
   return msgs.messages
 }
 function Handledisplaymsgs(msgs,msgcontainer,rec){
+  if (Array.isArray(msgs)){
   msgs.forEach(msg =>{
     let msghtml 
     if(msg.sender == rec || rec == 22){
@@ -679,5 +674,25 @@ function Handledisplaymsgs(msgs,msgcontainer,rec){
       msgcontainer.prepend(msghtml)
     }
   })
-  
+}
+}
+function Typing(element, username){
+  console.log(1)
+  element.addEventListener("input",e => {
+    let delay = 1000
+    let msg = {
+      type: "signal-typing",
+      sender: info.username,
+      recipient: username
+    }
+    socket.send(msg)
+    setTimeout(()=>{
+      let msg = {
+        type: "signal-off-typing",
+        sender: info.username,
+        recipient: username
+      }
+      socket.send(msg)
+    },delay)
+  })
 }
