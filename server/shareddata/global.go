@@ -1,5 +1,7 @@
 package shareddata
 
+import "time"
+
 const SessionName = "session_token"
 
 var Errors struct {
@@ -58,14 +60,19 @@ var UserErrors struct {
 }
 
 var PostErrors struct {
-	PostNotExist string
-	ContentLength string
-	TitleLength string
+	PostNotExist        string
+	ContentLength       string
+	TitleLength         string
 	CategoryDoesntExist string
-} = struct{ PostNotExist string; ContentLength string; TitleLength string; CategoryDoesntExist string }{
-	PostNotExist: "post doesn't exist",
-	ContentLength: "invalid content length",
-	TitleLength: "invalid title length",
+} = struct {
+	PostNotExist        string
+	ContentLength       string
+	TitleLength         string
+	CategoryDoesntExist string
+}{
+	PostNotExist:        "post doesn't exist",
+	ContentLength:       "invalid content length",
+	TitleLength:         "invalid title length",
 	CategoryDoesntExist: "categories doesn't exist",
 }
 
@@ -78,4 +85,12 @@ var CommentErrors struct {
 }{
 	InvalidCommentLength: "invalid comment length",
 	InvalidPage:          "invalid page number",
+}
+
+type ChatMessage struct {
+	Type      string    `json:"type"`
+	Sender    string    `json:"sender"`
+	Reciver   string    `json:"recipient"`
+	Content   string    `json:"content"`
+	Timestamp time.Time `json:"timestamp"`
 }

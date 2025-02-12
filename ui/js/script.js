@@ -5,13 +5,15 @@ import {
   commenthtml,
   commentdivhtml,
   postdivhtml,
-  convchathtml,
+  chathtml,
+  mymsg,
+  othermsg,
 } from "/ui/js/components.js";
 var info = {};
+let socket;
 await getInfoData().then((i) => {
   info = i;
 });
-console.log(info);
 let num = 0;
 let loading = false;
 let isSubmitting = false;
@@ -26,13 +28,12 @@ function createSidebar() {
   });
   let homebtn = document.querySelector(".Home");
   homebtn.addEventListener("click", function () {
-    let c = document.querySelector(".chat")
-    if (c){
-      c.remove()
-    }
+    let c = document.querySelector(".chat");
+    c ? (c.style.display = "none") : null;
     let inp = document.querySelector(".post.beta");
     if (!inp) {
       loadPosts(0).then((posts) => {
+        num = 1;
         let ps = document.createElement("div");
         ps.classList.add("posts-section");
         ps.appendChild(postin());
@@ -47,23 +48,15 @@ function createSidebar() {
   });
   let chatbtn = document.querySelector(".Chat");
   chatbtn.addEventListener("click", function () {
-    let p = document.querySelector(".posts-section")
-    if (p){
-      p.remove()
-    }
-    
-    /******** */
-    if(!document.querySelector(".chat")){
-    let chatctr = document.createElement("div")
-    chatctr.classList.add("chat")
-    chatctr.innerHTML = ""
-    chatctr.innerHTML = convchathtml
-    document.querySelector(".container").appendChild(chatctr);
-    in_conv()
+    let p = document.querySelector(".posts-section");
+    p ? p.remove() : null;
+    let chat = document.querySelector(".chat");
+    if (chat) {
+      chat.style.display = "flex";
     }
   });
 }
-document.querySelectorAll(".like, .dislike, .comment").forEach((element) => {
+document.querySelectorAll(".comment").forEach((element) => {
   element.addEventListener("click", () => {
     element.classList.toggle("active");
   });
@@ -106,7 +99,6 @@ function createCard() {
   frontSide
     .querySelector("form")
     .addEventListener("submit", async function (e) {
-      console.log("clicked");
       e.preventDefault();
       if (!isSubmitting) {
         isSubmitting = true;
@@ -191,6 +183,7 @@ function postin() {
   return postDiv;
 }
 function createPost(Post) {
+  console.log(Post);
   // Create the main post container
   const post = document.createElement("div");
   post.classList.add("post");
@@ -220,6 +213,20 @@ function createPost(Post) {
   userInfo.appendChild(avatar);
   userInfo.appendChild(userDetails);
 
+  let categories = null;
+
+  if (Post.categories && Post.categories.length > 0) {
+    categories = document.createElement("div");
+    categories.classList.add("categories");
+
+    Post.categories.forEach((cat) => {
+      const category = document.createElement("span");
+      category.classList.add("category");
+      category.textContent = cat;
+      categories.appendChild(category);
+    });
+  }
+
   const posttitle = document.createElement("p");
   posttitle.classList.add("post-title");
   posttitle.textContent = Post.title;
@@ -234,65 +241,8 @@ function createPost(Post) {
   postActions.classList.add("post-actions");
 
   // Like button and notification
-  const like = document.createElement("div");
-  like.classList.add("like");
-
-  const likeButton = document.createElement("button");
-  const likeSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  likeSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-  likeSvg.setAttribute("height", "20px");
-  likeSvg.setAttribute("viewBox", "0 -960 960 960");
-  likeSvg.setAttribute("width", "20px");
-  likeSvg.setAttribute("fill", "#707C97");
-  const likePath = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "path"
-  );
-  likePath.setAttribute(
-    "d",
-    "M720-144H264v-480l288-288 32 22q17 12 26 30.5t5 38.5l-1 5-38 192h264q30 0 51 21t21 51v57q0 8-1.5 14.5T906-467L786.93-187.8Q778-168 760-156t-40 12Zm-384-72h384l120-279v-57H488l49-243-201 201v378Zm0-378v378-378Zm-72-30v72H120v336h144v72H48v-480h216Z"
-  );
-  likeSvg.appendChild(likePath);
-  likeButton.appendChild(likeSvg);
-
-  const likeNotification = document.createElement("span");
-  likeNotification.classList.add("notification-icon");
-  likeNotification.textContent = Post.likes;
-
-  like.appendChild(likeButton);
-  like.appendChild(likeNotification);
 
   // Dislike button and notification
-  const dislike = document.createElement("div");
-  dislike.classList.add("dislike");
-
-  const dislikeButton = document.createElement("button");
-  const dislikeSvg = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "svg"
-  );
-  dislikeSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-  dislikeSvg.setAttribute("height", "20px");
-  dislikeSvg.setAttribute("viewBox", "0 -960 960 960");
-  dislikeSvg.setAttribute("width", "20px");
-  dislikeSvg.setAttribute("fill", "#707C97");
-  const dislikePath = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "path"
-  );
-  dislikePath.setAttribute(
-    "d",
-    "M240-816h456v480L408-48l-32-22q-17-12-26-30.5t-5-38.5l1-5 38-192H120q-30 0-51-21t-21-51v-57q0-8 1.5-14.5T54-493l119-279q8-20 26.5-32t40.5-12Zm384 72H240L120-465v57h352l-49 243 201-201v-378Zm0 378v-378 378Zm72 30v-72h144v-336H696v-72h216v480H696Z"
-  );
-  dislikeSvg.appendChild(dislikePath);
-  dislikeButton.appendChild(dislikeSvg);
-
-  const dislikeNotification = document.createElement("span");
-  dislikeNotification.classList.add("notification-icon");
-  dislikeNotification.textContent = Post.dislikes;
-
-  dislike.appendChild(dislikeButton);
-  dislike.appendChild(dislikeNotification);
 
   // Comment button and notification
   const comment = document.createElement("div");
@@ -326,8 +276,8 @@ function createPost(Post) {
   comment.appendChild(commentButton);
   comment.appendChild(commentNotification);
   // Append all post actions to the post-actions container
-  postActions.appendChild(like);
-  postActions.appendChild(dislike);
+  // postActions.appendChild(like);
+  // postActions.appendChild(dislike);
   postActions.appendChild(comment);
   let commentscontainer = document.createElement("div");
   commentscontainer.style.display = "none";
@@ -381,6 +331,9 @@ function createPost(Post) {
   post.appendChild(userInfo);
   post.appendChild(posttitle);
   post.appendChild(postContent);
+  if (categories) {
+    post.appendChild(categories);
+  }
   post.appendChild(postActions);
   post.appendChild(commentscontainer);
   post.id = Post.id;
@@ -395,7 +348,6 @@ function createPost(Post) {
     }
     let addpostbutton = postinput.querySelector(".addpost");
 
-    console.log("hello", addpostbutton);
     addpostbutton.addEventListener("click", async function () {
       let content = postinput.querySelector(".post-content.input").value;
       let title = postinput.querySelector(".post-title.input").value;
@@ -422,7 +374,7 @@ function createPost(Post) {
         if (posts != "baraka elik" && posts != "no posts") {
           posts.forEach((post) => createPost(post));
           postsection.scrollTo(0, postsection.scrollHeight * 0.8);
-          num = num + 1;
+          num += 1;
           loading = false;
         }
       } catch (error) {
@@ -509,7 +461,6 @@ async function sendRegisterinfo(user) {
   } catch (error) {}
 }
 async function sendlogininfo(user) {
-  console.log(1);
   try {
     const data = await fetch("/api/login", {
       method: "post",
@@ -519,6 +470,7 @@ async function sendlogininfo(user) {
       body: JSON.stringify(user),
     });
     if (data.ok) {
+      getInfoData();
       servehome();
     } else {
       console.log(await data.text());
@@ -549,10 +501,9 @@ async function servehome() {
   });
 }
 async function logout() {
-  document.querySelector(".container").innerHTML = "";
-  createCard();
-  document.cookie =
-    "session_token=;Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+  await fetch("/api/logout");
+  socket.close();
+  location.reload();
 }
 async function fetchPosts(num) {
   const res = await fetch(`/api/post/?page-number=${num}`);
@@ -560,6 +511,7 @@ async function fetchPosts(num) {
   return data;
 }
 async function loadPosts(num) {
+  console.log(num);
   let response = await fetchPosts(num);
   let posts = response.Posts;
   if (posts == null) {
@@ -573,9 +525,14 @@ async function loadPosts(num) {
 async function getInfoData() {
   const res = await fetch("/api/info");
   const data = await res.json();
-  if (res.ok) {
-    return data;
+
+  if (data.authorize) {
+    info = data;
+    if (!socket) {
+      Hanldews();
+    }
   }
+  return data;
 }
 async function fetchComments(postId, cnum) {
   const res = await fetch(`/api/post/${postId}/comments/${cnum}`);
@@ -591,7 +548,6 @@ async function loadComments(postId, cnum) {
 }
 async function loadaddPost(contentInput, categories, title) {
   let response = await addpost(contentInput, categories, title);
-  console.log(response);
   return response.ok;
 }
 async function addpost(contentInput, categories, Title) {
@@ -630,108 +586,196 @@ async function loadcomment(contentInput, postId) {
     info = i;
   });
 })();
-/******************************************* */
-function in_conv() {
-  const chatHeader = document.querySelector(".main header h2");
-  const chatImage = document.querySelector(".main header img:first-child");
-  const chatStatus = document.querySelector(".main header h3");
-  const chatMessages = document.getElementById("chat");
-  const listUsers = document.getElementById("list");
-  const footMsg = document.querySelector(".footer");
+async function Hanldews() {
+  console.log("Attempting WebSocket connection...");
 
-  // User Data (name, image, status, messages, and read status)
-  const userData = {
-      "Ayoub Mh": {
-          img: "/ui/css/messi.jpeg",
-          status: { color: "orange", text: "offline" },
-          messages: [
-              { sender: "Ayoub", time: "10:00AM", text: "Hey! How's it going?", type: "you", read: false },
-              { sender: "Me", time: "10:02AM", text: "All good! What about you?", type: "me", read: true },
-          ],
-      },
-      Imad: {
-          img: "/ui/css/default-profile.jpg",
-          status: { color: "green", text: "online" },
-          messages: [
-              { sender: "Imad", time: "11:00AM", text: "Are you coming today?Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.", type: "you", read: false },
-              { sender: "Me", time: "11:05AM", text: "Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.Yes! I'll be there at noon.", type: "me", read: true },
-          ],
-      },
+  socket = new WebSocket("ws://localhost:8081/api/ws");
+
+  socket.onopen = () => {
+    console.log("WebSocket connection established!");
   };
 
-  // Function to clear chat interface (before selecting a user)
-  function resetChatUI() {
-      chatHeader.textContent = "";
-      chatImage.src = "/ui/css/01chat.png";
-      chatStatus.textContent = "";
-      chatMessages.innerHTML = "";
-      footMsg.innerHTML = "";
-  }
+  socket.onerror = (error) => {
+    console.error("WebSocket error:", error);
+  };
 
-  // Populate user list dynamically
-  function renderUserList() {
-      listUsers.innerHTML = Object.keys(userData)
-          .map((name) => `
-          <li data-user="${name}">
-              <img src="${userData[name].img}" style="width: 55px;height: 55px;">
-              <div>
-                  <h2>${name}</h2>
-                  <h3>
-                      <span class="status ${userData[name].status.color}"></span>
-                      ${userData[name].status.text}
-                  </h3>
-              </div>
-          </li>`)
-          .join("");
+  socket.onclose = () => {
+    console.log("WebSocket connection closed.");
+  };
 
-      // Attach event listeners after rendering users
-      attachUserClickEvents();
-  }
+  socket.addEventListener("message", (event) => {
+    console.log("Data arrived");
+    let data;
+    try {
+      data = JSON.parse(event.data);
+      console.log(data);
+    } catch (e) {
+      console.error("Invalid JSON received:", event.data);
+      return;
+    }
 
-  // Function to handle user selection
-  function attachUserClickEvents() {
-      document.querySelectorAll("#list li").forEach((user) => {
-          user.addEventListener("click", function () {
-              const userName = this.dataset.user;
-              const userInfo = userData[userName];
+    if (Array.isArray(data)) {
+      let chat = document.querySelector(".chat");
+      if (!chat) {
+        chat = document.createElement("div");
+        chat.classList.add("chat");
+        chat.style.display = "none";
+        chat.innerHTML = chathtml("");
+        document.querySelector(".container").appendChild(chat);
+        let chatbtn = document.querySelector(".button-send");
+        chatbtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          let rec = document.querySelector(".text-chat").id;
+          if (rec == "") return;
+          let msg = document.querySelector(".message-send").value;
+          const message = {
+            type: "message",
+            sender: info.username,
+            recipient: rec.toString(),
+            content: msg,
+          };
+          socket.send(JSON.stringify(message));
+          document.querySelector(".message-send").value = "";
+          let msgcontainer = document.querySelector(".messages-container");
+          Handledisplaymsgs([message], msgcontainer);
+          scrollToBottom();
+        });
+      }
 
-              if (!userInfo) return; // Skip if user not found
+      let ul = chat.querySelector("ul");
+      if (!ul) {
+        ul = document.createElement("ul");
+        chat.appendChild(ul);
+      }
 
-              // Update chat header
-              chatHeader.textContent = `Chat with ${userName}`;
-              chatImage.src = userInfo.img;
-
-              // Update status dynamically
-              chatStatus.innerHTML = `<span class="status ${userInfo.status.color}"></span> ${userInfo.status.text}`;
-
-              footMsg.innerHTML = `<textarea placeholder="Type your message"></textarea><a href="#">Send</a>`;
-
-              // Mark all received messages as read
-              userInfo.messages.forEach((msg) => {
-                  if (msg.type === "you") msg.read = true;
-              });
-
-              // Update chat messages
-              chatMessages.innerHTML = userInfo.messages
-                  .map(
-                      (msg) => `
-                      <li class="${msg.type}">
-                          <div class="entete">
-                              <h3>${msg.time}</h3>
-                              <h2>${msg.sender}</h2>
-                              <span class="status ${msg.read ? "blue" : "gray"}"></span>
-                          </div>
-                          <div class="triangle"></div>
-                          <div class="message">${msg.text}</div>
-                      </li>`
-                  )
-                  .join("");
+      data.forEach((us) => {
+        let existingUser = document.querySelector(`#${us.username}`);
+        if (!existingUser) {
+          let userElement = document.createElement("li");
+          userElement.id = us.username;
+          userElement.textContent = us.username;
+          userElement.classList.add("chat-user");
+          if (us.State) {
+            userElement.classList.add("online");
+          }
+          let offset = 0;
+          ul.appendChild(userElement);
+          userElement.addEventListener("click", async function () {
+            let chath = document.querySelector(".text-chat");
+            chath.innerHTML = `Chat With ${us.username}`;
+            chath.id = `${us.username}`;
+            let isloading = false;
+            let msgcontainer = document.querySelector(".messages-container");
+            msgcontainer.innerHTML = "";
+            let msgs = await loadMessages(us.username, offset);
+            Handledisplaymsgs(msgs, msgcontainer, us.username);
+            msgcontainer.addEventListener("scroll", async function () {
+              if (msgcontainer.scrollTop == 0 && !isloading) {
+                console.log("getting hadouk lmsgat");
+                isloading == true;
+                msgs = await loadMessages(us.username, offset);
+                Handledisplaymsgs(msgs, msgcontainer, us.username);
+                offset++;
+                isloading = false;
+              }
+            });
           });
+        }
       });
-  }
-
-  // Initial setup
-  resetChatUI(); // Ensure chat is empty initially
-  renderUserList(); // Populate the user list
+      chat.style.display = "none";
+    } else {
+      if (data.type === "signal-off") {
+        let user = document.querySelector(`#${data.content}`);
+        user.classList = ["chat-user"];
+      } else if (data.type === "signal-on") {
+        let user = document.querySelector(`#${data.content}`);
+        if (!user) {
+          user = document.createElement("li");
+          user.id = data.content;
+          user.textContent = data.content;
+          user.classList.add("chat-user");
+          document.querySelector(".users").appendChild(user);
+        }
+        user.classList.add("online");
+      } else if (data.type === "message") {
+        console.log("rfws");
+        let chat = document.querySelector(`#${data.sender}`);
+        if (!chat) {
+        } else {
+          console.log(data);
+          Handledisplaymsgs(
+            [data],
+            document.querySelector(".messages-container"),
+            22
+          );
+        }
+      }
+    }
+  });
+}
+function scrollToBottom() {
+  let msgContainer = document.querySelector(".messages-container");
+  msgContainer.scrollTop = msgContainer.scrollHeight;
 }
 
+async function loadMessages(userId, offset) {
+  console.log(`/api/msg?user_id=${userId}&offset=${offset}`);
+  const response = await fetch(`/api/msg?user_id=${userId}&offset=${offset}`);
+  const msgs = await response.json();
+  console.log(msgs.messages);
+  return msgs.messages;
+}
+function Handledisplaymsgs(msgs, msgcontainer, rec) {
+  msgs.forEach((msg) => {
+    let msghtml;
+    if (msg.sender == rec || rec == 22) {
+      msghtml = document
+        .createRange()
+        .createContextualFragment(othermsg(msg.content));
+    } else {
+      msghtml = document
+        .createRange()
+        .createContextualFragment(mymsg(msg.content));
+    }
+    if (rec == 22 || !rec) {
+      msgcontainer.appendChild(msghtml);
+    } else {
+      msgcontainer.prepend(msghtml);
+    }
+  });
+  scrollToBottom();
+  popup("New Message");
+}
+function popup(text) {
+  const existingMessenger = document.querySelector(".messenger");
+  if (existingMessenger) {
+    existingMessenger.remove();
+  }
+
+  const messenger = document.createElement("div");
+  messenger.className = "messenger";
+
+  const mesgCircle = document.createElement("div");
+  mesgCircle.className = "mesgcircle";
+
+  const msgScroll = document.createElement("div");
+  msgScroll.className = "msgscrol";
+
+  const textSpan = document.createElement("span");
+  textSpan.textContent = text;
+
+  const mesgLoad = document.createElement("div");
+  mesgLoad.className = "mesgload";
+
+  for (let i = 0; i < 3; i++) {
+    const dot = document.createElement("span");
+    mesgLoad.appendChild(dot);
+  }
+
+  msgScroll.appendChild(textSpan);
+  mesgCircle.appendChild(msgScroll);
+  mesgCircle.appendChild(mesgLoad);
+  messenger.appendChild(mesgCircle);
+
+  document.body.appendChild(messenger);
+}

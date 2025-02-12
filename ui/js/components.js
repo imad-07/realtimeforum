@@ -1,12 +1,4 @@
-export {
-  sidebarhtml,
-  frontcard,
-  backcard,
-  commenthtml,
-  commentdivhtml,
-  postdivhtml,
-  convchathtml,
-};
+export {sidebarhtml, frontcard, backcard, commenthtml, commentdivhtml, postdivhtml, chathtml, mymsg, othermsg}
 
 let sidebarhtml = (username) => `
     <div class="profile-section">
@@ -57,7 +49,7 @@ let sidebarhtml = (username) => `
         Log-out
       </a>
     </nav>
-  `;
+  `
 let frontcard = `
     <h2>Login</h2>
     <form id="login-form" method="POST">
@@ -68,24 +60,23 @@ let frontcard = `
       <button type="submit" class="btn">Login</button>
       <p class="switch">Don't have an account? <span id="switch-to-register">Register</span></p>
     </form>
-  `;
-let backcard = `
+  `
+let backcard =  `
     <h2>Register</h2>
     <form class="register-form" method="POST">
-      <label for="first-name">First Name</label>
-      <input type="text" id="first-name" name="first-name" required>
-      <label for="last-name">Last Name</label>
-      <input type="text" id="last-name" name="last-name" required>
+      <label for="nickname">Nickname</label>
+      <input type="text" id="nickname" name="nickname" required>
       <label for="age">Age</label>
       <input type="number" id="age" name="age" required>
       <label for="gender">Gender</label>
       <select id="gender" name="gender" required>
-        <option value="" selected disabled>Select your gender</option>
         <option value="male">Male</option>
         <option value="female">Female</option>
       </select>
-      <label for="nickname">Nickname</label>
-      <input type="text" id="nickname" name="nickname" required>
+      <label for="first-name">First Name</label>
+      <input type="text" id="first-name" name="first-name" required>
+      <label for="last-name">Last Name</label>
+      <input type="text" id="last-name" name="last-name" required>
       <label for="email">E-mail</label>
       <input type="email" id="email" name="email" required>
       <label for="password">Password</label>
@@ -93,7 +84,7 @@ let backcard = `
       <button type="submit" class="btn">Register</button>
       <p class="switch">Already have an account? <span id="switch-to-login">Login</span></p>
     </form>
-  `;
+  `
 let commenthtml = (Comment) => `
     <div class="user-info">
       <img src="/ui/css/default-profile.jpg" alt="User Avatar" class="avatar">
@@ -103,26 +94,9 @@ let commenthtml = (Comment) => `
       </div>
     </div>
     <p class="comment-content">${Comment.content}</p>
-    <div class="comment-actions">
-      <div class="like">
-        <button>
-          <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#707C97">
-            <path d="M720-144H264v-480l288-288 32 22q17 12 26 30.5t5 38.5l-1 5-38 192h264q30 0 51 21t21 51v57q0 8-1.5 14.5T906-467L786.93-187.8Q778-168 760-156t-40 12Zm-384-72h384l120-279v-57H488l49-243-201 201v378Zm0-378v378-378Zm-72-30v72H120v336h144v72H48v-480h216Z"/>
-          </svg>
-        </button>
-        <span class="notification-icon">${Comment.likes}</span>
-      </div>
-      <div class="dislike">
-        <button>
-          <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#707C97">
-            <path d="M240-816h456v480L408-48l-32-22q-17-12-26-30.5t-5-38.5l1-5 38-192H120q-30 0-51-21t-21-51v-57q0-8 1.5-14.5T54-493l119-279q8-20 26.5-32t40.5-12Zm384 72H240L120-465v57h352l-49 243 201-201v-378Zm0 378v-378 378Zm72 30v-72h144v-336H696v-72h216v480H696Z"/>
-          </svg>
-        </button>
-        <span class="notification-icon">${Comment.dislikes}</span>
-      </div>
-    </div>
-  `;
-let commentdivhtml = (username) => `
+    
+  `
+let commentdivhtml = (username) =>`
     <div class="user-info">
       <img src="/ui/css/default-profile.jpg" alt="User Avatar" class="avatar">
       <div class="user-details">
@@ -133,8 +107,8 @@ let commentdivhtml = (username) => `
     <div class="addcoment">
       <button>Coment</button>
     </div>
-  `;
-let postdivhtml = (categoryHTML) => `
+  `
+  let postdivhtml = (categoryHTML) =>`
     <div class="user-info">
       <img src="/ui/css/default-profile.jpg" alt="User Avatar" class="avatar">
       <div class="user-details">
@@ -147,57 +121,27 @@ let postdivhtml = (categoryHTML) => `
     <div class="addpost">
       <button>Post-It!</button>
     </div>
-  `;
-let convchathtml = `
-  <div id="conv_chat">
-      <aside>
-        <header>
-          <h1>USERS</h1>
-        </header>
-        <ul id="list">
-          <li>
-            <img />
-            <div>
-              <h2></h2>
-              <h3>
-                <span class="status"></span>
-              </h3>
-            </div>
-          </li>
-        </ul>
-      </aside>
-      <div class="main">
-        <header>
-          <img src="css/01chat.png" style="width: 55px; height: 55px" />
-          <div>
-            <h2></h2>
-            <h3></h3>
-          </div>
-        </header>
-        <ul id="chat">
-          <li class="you">
-            <div class="entete">
-              <span class="status green"></span>
-              <h2></h2>
-              <h3></h3>
-            </div>
-            <div class="triangle"></div>
-            <div class="message"></div>
-          </li>
-          <li class="me">
-            <div class="entete">
-              <h3></h3>
-              <h2></h2>
-              <span class="status blue"></span>
-            </div>
-            <div class="triangle"></div>
-            <div class="message"></div>
-          </li>
-        </ul>
-        <div class="footer">
-          <textarea placeholder="Type your message"></textarea>
-          <a href="#">Send</a>
-        </div>
-      </div>
+  `
+  let chathtml = (username) =>`<div class="card-container">
+  <div class="card-header">
+    <div class="img-avatar"></div>
+    <div class="text-chat">Chat with${username}</div>
+  </div>
+  <div class="card-body">
+    <div class="messages-container">
     </div>
-  `;
+    <div class="message-input">
+      <form>
+        <textarea placeholder="Type your message here" class="message-send"></textarea>
+        <button type="submit" class="button-send">Send</button>
+      </form>
+    </div>
+  </div>
+</div>
+`
+let mymsg = (message)=>`<div class="message-box right">
+            <p>${message}</p>
+        </div>`
+let othermsg = (message)=>`<div class="message-box left">
+        <p>${message}</p>
+    </div>`
