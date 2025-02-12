@@ -744,38 +744,29 @@ function Handledisplaymsgs(msgs, msgcontainer, rec) {
     }
   });
   scrollToBottom();
-  popup("New Message");
+  popup("Success! Operation completed.", "success");
+  popup("Warning! Check your input.", "warning");
+  popup("Error! Something went wrong.", "error");
 }
-function popup(text) {
-  const existingMessenger = document.querySelector(".messenger");
-  if (existingMessenger) {
-    existingMessenger.remove();
+
+const FADE_DUR = 500;
+const DISPLAY_DUR = 3000;
+let popupContain;
+
+function popup(message, extraClasses) {
+  if (!popupContain) {
+    popupContain = document.createElement("div");
+    popupContain.classList.add("popupContain");
+    document.body.appendChild(popupContain);
   }
 
-  const messenger = document.createElement("div");
-  messenger.className = "messenger";
+  const EL = document.createElement("div");
+  EL.classList.add("popup", extraClasses);
+  EL.innerText = message;
+  popupContain.prepend(EL);
 
-  const mesgCircle = document.createElement("div");
-  mesgCircle.className = "mesgcircle";
-
-  const msgScroll = document.createElement("div");
-  msgScroll.className = "msgscrol";
-
-  const textSpan = document.createElement("span");
-  textSpan.textContent = text;
-
-  const mesgLoad = document.createElement("div");
-  mesgLoad.className = "mesgload";
-
-  for (let i = 0; i < 3; i++) {
-    const dot = document.createElement("span");
-    mesgLoad.appendChild(dot);
-  }
-
-  msgScroll.appendChild(textSpan);
-  mesgCircle.appendChild(msgScroll);
-  mesgCircle.appendChild(mesgLoad);
-  messenger.appendChild(mesgCircle);
-
-  document.body.appendChild(messenger);
+  setTimeout(() => EL.classList.add("open"), 10); 
+  setTimeout(() => EL.classList.remove("open"), DISPLAY_DUR);
+  setTimeout(() => popupContain.removeChild(EL), DISPLAY_DUR + FADE_DUR);
 }
+
