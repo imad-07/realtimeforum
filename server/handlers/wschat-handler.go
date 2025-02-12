@@ -57,7 +57,6 @@ func (Ws *WsHandler) Wshandler(w http.ResponseWriter, r *http.Request) {
 		err := conn.ReadJSON(&msg)
 		username, _ := service.GetUser(Ws.WsService.Wsdata.Db, user.Value)
 		msg.Sender = username
-		fmt.Println(msg)
 		if err != nil {
 			break
 		}

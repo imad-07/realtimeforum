@@ -607,9 +607,11 @@ async function Hanldews() {
               if ((msgcontainer.scrollTop ==0 )&& !isloading) {
                 isloading == true
                  msgs = await loadMessages(us.username,offset)
+                 if (msgs != null){
                 Handledisplaymsgs(msgs,msgcontainer,us.username)
                 offset = msgs[msgs.length-1].id
-                isloading = false
+                 }
+                 isloading = false
               }
             })
           })
@@ -631,6 +633,7 @@ async function Hanldews() {
         }
         user.classList.add("online")
       }else if (data.type === "message"){
+        popup(data.sender+" sent a message","success")
         let chat = document.querySelector(`#${data.sender}`)
         if (!chat){
         }else{
@@ -683,4 +686,24 @@ function Typing(element, username){
       socket.send(msg)
     },delay)
   })
+}
+const FADE_DUR = 500;
+const DISPLAY_DUR = 3000;
+let popupContain;
+
+function popup(message, extraClasses) {
+  if (!popupContain) {
+    popupContain = document.createElement("div");
+    popupContain.classList.add("popupContain");
+    document.body.appendChild(popupContain);
+  }
+
+  const EL = document.createElement("div");
+  EL.classList.add("popup", extraClasses);
+  EL.innerText = message;
+  popupContain.prepend(EL);
+
+  setTimeout(() => EL.classList.add("open"), 10); 
+  setTimeout(() => EL.classList.remove("open"), DISPLAY_DUR);
+  setTimeout(() => popupContain.removeChild(EL), DISPLAY_DUR + FADE_DUR);
 }

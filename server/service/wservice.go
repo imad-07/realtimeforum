@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"html"
 	"sync"
 
 	"forum/server/data"
@@ -109,7 +110,9 @@ func BroadcastMessage(senderID string, message shareddata.ChatMessage) {
 }
 
 func (Ws *Wservice) SendPrivateMessage(msg shareddata.ChatMessage) {
-	fmt.Println("123456")
+	msg.Content = html.EscapeString(msg.Content)
+	msg.Sender = html.EscapeString(msg.Sender)
+	msg.Reciver = html.EscapeString(msg.Reciver)
 	reciver, exists := Clients[msg.Reciver]
 	if exists {
 		for _, conn := range reciver {
