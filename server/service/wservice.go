@@ -109,6 +109,7 @@ func BroadcastMessage(senderID string, message shareddata.ChatMessage) {
 }
 
 func (Ws *Wservice) SendPrivateMessage(msg shareddata.ChatMessage) {
+	fmt.Println("123456")
 	reciver, exists := Clients[msg.Reciver]
 	if exists {
 		for _, conn := range reciver {

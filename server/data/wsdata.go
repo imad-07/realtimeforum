@@ -65,11 +65,17 @@ func (Ws *WsData) Getconv(Sender, Receiver string, num int) ([]shareddata.ChatMe
 func (Ws *WsData) Getusers(username string) []User {
 	var users []User
 	query := `
-        SELECT username, id
-        FROM user_profile 
-        WHERE (username != ?)
-        ORDER BY username ASC;
-    `
+            SELECT 
+        user_profile.username,
+        user_profile.id
+    FROM user_profile
+    LEFT JOIN user_chats 
+        ON (user_profile.username = user_chats.sender OR user_profile.username = user_chats.receiver) 
+        AND (user_chats.sender = $1 OR user_chats.receiver = $1)
+    WHERE user_profile.username != $1
+    GROUP BY user_profile.id
+    ORDER BY MAX(user_chats.time) DESC, user_profile.username;
+`
 	rows, err := Ws.Db.Query(query, username)
 	if err != nil {
 		log.Fatal(err)

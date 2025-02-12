@@ -2,9 +2,7 @@ import {sidebarhtml, frontcard, backcard, commenthtml, commentdivhtml, postdivht
 var info = {}
 let socket
 let lastpost = 0
-await getInfoData().then(i =>{
-  info = i
-})
+await getInfoData()
 let loading = false; 
 let isSubmitting = false;
 function createSidebar() {
@@ -291,7 +289,6 @@ function createPost(Post) {
       cmnts.forEach(cmt => createcomment(cmt,commentscontainer));
       commentscontainer.scrollTo(0, commentscontainer.scrollHeight*0.80)
       cmtnum = cmnts[cmnts.length-1].id
-      console.log(cmtnum)
       cmtloading = false;
       }
     } catch (error) {
@@ -338,7 +335,6 @@ function createPost(Post) {
   postsection.addEventListener("scroll", async () => {
     if (postsection.scrollTop + postsection.clientHeight >= postsection.scrollHeight&& !loading) {
       loading = true;
-      console.log("Loading more posts...");
       try {
         let posts = await loadPosts(lastpost);
         if(posts!= "baraka elik"&& posts != "no posts"){
@@ -372,7 +368,7 @@ function createPost(Post) {
     if (!validbs(["username", "age", "gender", "firstname", "lastname", "email", "password"]))return false;
     if (!validateEmail(email))return false;
     if (!validatePassword(password))return false;
-    if (!validlen(username,3,15) || !validlen(firstname,3,15) || !validlen(lastname,3,15) || (age > 100 || age < 12) || (gender != "male" && gender != "female")) { console.log(user);return false};
+    if (!validlen(username,3,15) || !validlen(firstname,3,15) || !validlen(lastname,3,15) || (age > 100 || age < 12) || (gender != "male" && gender != "female")) { ;return false};
   }
   return true
  }
@@ -420,10 +416,10 @@ async function sendlogininfo(user){
       body: JSON.stringify(user),
     });
     if (data.ok) {
-      getInfoData()
+      await getInfoData()
       servehome()
     } else {
-      console.log( await data.text());
+      //console.log( await data.text());
     }
   } catch (error) {
     console.log(error)
@@ -456,7 +452,6 @@ async function logout(){
   location.reload()
 }
 async function fetchPosts(startid){
-  console.log(startid)
   const res = await fetch(`/api/post/?start-id=${startid}`);
   const data = await res.json();
   return data;
@@ -475,15 +470,14 @@ async function loadPosts(startid) {
 async function getInfoData() {
   const res = await fetch("/api/info");
   const data = await res.json();
-
+  info = data;
   if (data.authorize) {
-    info = data;
     if (!socket){
     Hanldews();
     }
   }
-  return data;
 }
+
 async function fetchComments(postId, cnum){
   const res = await fetch(`/api/post/${postId}/comments/${cnum}`);
   return await res.json();
@@ -523,21 +517,16 @@ async function addcomment(contentInput,postId){
 }
 async function loadcomment(contentInput,postId){
   let response = await addcomment(contentInput,postId)
-  console.log(response)
   return response.ok
 }
 (async function(){
   if (!info.authorize){
     createCard()
   }else{
-    servehome(info)
+    servehome()
   }
-  await getInfoData().then(i =>{
-    info = i 
-  })
 }()); 
 async function Hanldews() {
-  console.log("Attempting WebSocket connection...");
    socket = new WebSocket('ws://localhost:8081/api/ws');
   socket.onopen = () => {
     console.log("WebSocket connection established!");
@@ -578,13 +567,14 @@ async function Hanldews() {
             content: msg
           }
           socket.send(JSON.stringify(message))
+          console.log(message)
           let msgcontainer = document.querySelector(".messages-container")
           Handledisplaymsgs([message],msgcontainer)
 
         })
-        let rec = document.querySelector(".text-chat").id
+       /* let rec = document.querySelector(".text-chat").id
         let msg = document.querySelector(".message-send")
-        Typing(msg,rec.toString())
+        Typing(msg,rec.toString())*/
       }
       let ul = chat.querySelector("ul");
       if (!ul) {
@@ -615,7 +605,6 @@ async function Hanldews() {
             Handledisplaymsgs(msgs,msgcontainer,us.username)
             msgcontainer.addEventListener("scroll",async function (){
               if ((msgcontainer.scrollTop ==0 )&& !isloading) {
-                console.log("getting hadouk lmsgat")
                 isloading == true
                  msgs = await loadMessages(us.username,offset)
                 Handledisplaymsgs(msgs,msgcontainer,us.username)
@@ -629,10 +618,10 @@ async function Hanldews() {
       chat.style.display = "none"; 
     } else {
       if (data.type === "signal-off") {
-        let user = document.querySelector(`#${data.content}`)
+        let user = document.querySelector("ul").querySelector(`#${data.content}`)
         user.classList = ["chat-user"]
       }else if (data.type === "signal-on") {
-        let user = document.querySelector(`#${data.content}`)
+        let user = document.querySelector("ul").querySelector(`#${data.content}`)
         if (!user){
            user = document.createElement("li");
           user.id = data.content
@@ -656,7 +645,6 @@ async function Hanldews() {
 async function loadMessages(userId, offset) {
   const response = await fetch(`/api/msg?user_id=${userId}&offset=${offset}`);
   const msgs = await response.json();
-  console.log(msgs.messages)
   return msgs.messages
 }
 function Handledisplaymsgs(msgs,msgcontainer,rec){

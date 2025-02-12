@@ -51,13 +51,13 @@ func (Ws *WsHandler) Wshandler(w http.ResponseWriter, r *http.Request) {
 
 	// Register new WebSocket connection
 	Ws.WsService.RegisterConnection(user.Value, conn)
-
 	// Read messages from WebSocket connection
 	for {
 		var msg shareddata.ChatMessage
 		err := conn.ReadJSON(&msg)
 		username, _ := service.GetUser(Ws.WsService.Wsdata.Db, user.Value)
 		msg.Sender = username
+		fmt.Println(msg)
 		if err != nil {
 			break
 		}
