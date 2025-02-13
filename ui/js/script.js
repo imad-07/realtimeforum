@@ -28,8 +28,13 @@ function createSidebar() {
   });
   let homebtn = document.querySelector(".Home");
   homebtn.addEventListener("click", function () {
-    let c = document.querySelector(".chat");
-    c ? (c.style.display = "none") : null;
+    let chat = document.querySelector(".chat");
+    chat.style.width = "";
+    let chatcard = document.querySelector(".card-container");
+    if (chatcard) {
+      chatcard.remove();
+    }
+
     let inp = document.querySelector(".post.beta");
     if (!inp) {
       loadPosts(0).then((posts) => {
@@ -46,15 +51,12 @@ function createSidebar() {
       });
     }
   });
-  let chatbtn = document.querySelector(".Chat");
-  chatbtn.addEventListener("click", function () {
-    let p = document.querySelector(".posts-section");
-    p ? p.remove() : null;
-    let chat = document.querySelector(".chat");
-    if (chat) {
-      chat.style.display = "flex";
-    }
-  });
+  
+  let chat = document.querySelector(".chat");
+
+  if (chat) {
+    chat.style.display = "flex";
+  }
 }
 document.querySelectorAll(".comment").forEach((element) => {
   element.addEventListener("click", () => {
@@ -622,24 +624,6 @@ async function Hanldews() {
         chat.style.display = "none";
         chat.innerHTML = chathtml("");
         document.querySelector(".container").appendChild(chat);
-        let chatbtn = document.querySelector(".button-send");
-        chatbtn.addEventListener("click", (e) => {
-          e.preventDefault();
-          let rec = document.querySelector(".text-chat").id;
-          if (rec == "") return;
-          let msg = document.querySelector(".message-send").value;
-          const message = {
-            type: "message",
-            sender: info.username,
-            recipient: rec.toString(),
-            content: msg,
-          };
-          socket.send(JSON.stringify(message));
-          document.querySelector(".message-send").value = "";
-          let msgcontainer = document.querySelector(".messages-container");
-          Handledisplaymsgs([message], msgcontainer);
-          scrollToBottom();
-        });
       }
 
       let ul = chat.querySelector("ul");
@@ -660,29 +644,80 @@ async function Hanldews() {
           }
           let offset = 0;
           ul.appendChild(userElement);
+
+          let chatcard = document.querySelector(".card-container");
+          if (chatcard) {
+            chatcard.remove();
+          }
+
           userElement.addEventListener("click", async function () {
+            let posts = document.querySelector(".posts-section");
+            if (posts) {
+              posts.remove();
+            }
+            let chat = document.querySelector(".chat");
+            chat.style.width = "100%";
+            let chatcard = document.querySelector(".card-container");
+
+            if (chatcard) {
+              chatcard.remove();
+            }
+
+            let tempDiv = document.createElement("div");
+            tempDiv.innerHTML = chathtml(us.username);
+            let newChatCard = tempDiv.firstElementChild;
+            chat.appendChild(newChatCard);
+
             let chath = document.querySelector(".text-chat");
             chath.innerHTML = `Chat With ${us.username}`;
             chath.id = `${us.username}`;
-            let isloading = false;
+
             let msgcontainer = document.querySelector(".messages-container");
             msgcontainer.innerHTML = "";
             let msgs = await loadMessages(us.username, offset);
             Handledisplaymsgs(msgs, msgcontainer, us.username);
+
+            let isloading = false;
             msgcontainer.addEventListener("scroll", async function () {
-              if (msgcontainer.scrollTop == 0 && !isloading) {
-                console.log("getting hadouk lmsgat");
-                isloading == true;
-                msgs = await loadMessages(us.username, offset);
-                Handledisplaymsgs(msgs, msgcontainer, us.username);
+              if (msgcontainer.scrollTop === 0 && !isloading) {
+                console.log("Getting older messages...");
+                isloading = true;
+                let moreMsgs = await loadMessages(us.username, offset);
+                Handledisplaymsgs(moreMsgs, msgcontainer, us.username);
                 offset++;
                 isloading = false;
               }
             });
+            ////add chat button agin
+            let chatbtn = document.querySelector(".button-send");
+            if (chatbtn) {
+              chatbtn.addEventListener("click", (e) => {
+                console.log("Sending message...");
+                e.preventDefault();
+                let rec = document.querySelector(".text-chat").id;
+                if (rec == "") return;
+                let msg = document.querySelector(".message-send").value;
+                const message = {
+                  type: "message",
+                  sender: info.username,
+                  recipient: rec.toString(),
+                  content: msg,
+                };
+                socket.send(JSON.stringify(message));
+                document.querySelector(".message-send").value = "";
+                let msgcontainer = document.querySelector(
+                  ".messages-container"
+                );
+                Handledisplaymsgs([message], msgcontainer);
+                scrollToBottom();
+              });
+            } else {
+              console.error("No chat button found!");
+            }
           });
         }
       });
-      chat.style.display = "none";
+      chat.style.display = "flex";
     } else {
       if (data.type === "signal-off") {
         let user = document.querySelector(`#${data.content}`);
@@ -726,6 +761,10 @@ async function loadMessages(userId, offset) {
   return msgs.messages;
 }
 function Handledisplaymsgs(msgs, msgcontainer, rec) {
+  if (!msgs) {
+    console.log("No messages to display.");
+    return;
+  }
   msgs.forEach((msg) => {
     let msghtml;
     if (msg.sender == rec || rec == 22) {
@@ -765,8 +804,7 @@ function popup(message, extraClasses) {
   EL.innerText = message;
   popupContain.prepend(EL);
 
-  setTimeout(() => EL.classList.add("open"), 10); 
+  setTimeout(() => EL.classList.add("open"), 10);
   setTimeout(() => EL.classList.remove("open"), DISPLAY_DUR);
   setTimeout(() => popupContain.removeChild(EL), DISPLAY_DUR + FADE_DUR);
 }
-

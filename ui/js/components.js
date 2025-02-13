@@ -6,7 +6,7 @@ let sidebarhtml = (username) => `
       <h3 id="user-name">${username}</h3>
     </div>
     <nav class="menu">
-      <a href="#" class="menu-item Home">
+    <a href="#" class="menu-item Home">
         <button class="btn">
           <svg xmlns="http://www.w3.org/2000/svg" height="40" viewBox="0 -960 960 960" width="40" fill="#707C97">
               <defs>
@@ -20,20 +20,7 @@ let sidebarhtml = (username) => `
         </button>
         Home
       </a>
-      <a href="#" class="menu-item Chat">
-        <button class="btn">
-          <svg xmlns="http://www.w3.org/2000/svg" height="40" viewBox="0 -960 960 960" width="40" fill="#707C97">
-              <defs>
-                <linearGradient id="hoverGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#7CB8F7"/>
-                  <stop offset="93%" stop-color="#2A8BF2"/>
-                </linearGradient>
-              </defs>
-            <path d="M240-400h320v-80H240v80Zm0-120h480v-80H240v80Zm0-120h480v-80H240v80ZM80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z"/>
-            </svg>
-        </button>
-        Chat
-      </a>
+      
       <a href="#" class="menu-item Log-out LO">
         <button class="btn">
           <svg xmlns="http://www.w3.org/2000/svg" height="40" viewBox="0 -960 960 960" width="40" fill="#707C97">
