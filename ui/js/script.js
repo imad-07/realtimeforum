@@ -404,6 +404,7 @@ function createPost(Post) {
       card.classList.remove('flipped')
     }
   } catch (error) {
+    console.log(error)
   }
  }
 async function sendlogininfo(user){
@@ -419,7 +420,7 @@ async function sendlogininfo(user){
       await getInfoData()
       servehome()
     } else {
-      //console.log( await data.text());
+      popup(data.statusText,"warning")
     }
   } catch (error) {
     console.log(error)
@@ -592,23 +593,27 @@ async function Hanldews() {
           if (us.State) {
             userElement.classList.add("online");
         } 
-        let offset = 0
           ul.appendChild(userElement);
           userElement.addEventListener("click",async function(){
+            let msgcontainer = document.querySelector(".messages-container")
+            msgcontainer.innerHTML = ""
+            let offset = 0
             let chath = document.querySelector(".text-chat")
             chath.innerHTML = `Chat With ${us.username}`
             chath.id = `${us.username}`
             let isloading = false
-            let msgcontainer = document.querySelector(".messages-container")
-            msgcontainer.innerHTML = ""
-            let msgs = await loadMessages(us.username,offset)
+            let msgs = await loadMessages(us.username,0)
+            if (msgs != null){
             Handledisplaymsgs(msgs,msgcontainer,us.username)
+            offset = msgs[msgs.length-1].id
+            }
             msgcontainer.addEventListener("scroll",async function (){
-              if ((msgcontainer.scrollTop ==0 )&& !isloading) {
+              if ((msgcontainer.scrollTop < 20 )&& !isloading) {
                 isloading == true
                  msgs = await loadMessages(us.username,offset)
                  if (msgs != null){
                 Handledisplaymsgs(msgs,msgcontainer,us.username)
+                console.log(offset)
                 offset = msgs[msgs.length-1].id
                  }
                  isloading = false
@@ -626,18 +631,20 @@ async function Hanldews() {
         let user = document.querySelector("ul").querySelector(`#${data.content}`)
         if (!user){
            user = document.createElement("li");
+           console.log(data.content)
           user.id = data.content
           user.textContent = data.content
           user.classList.add("chat-user")
-          document.querySelector(".users").appendChild(user)
+          document.querySelector("ul").appendChild(user)
         }
         user.classList.add("online")
       }else if (data.type === "message"){
         popup(data.sender+" sent a message","success")
-        let chat = document.querySelector(`#${data.sender}`)
+        let chat = document.querySelector(`#${data.sender}.text-chat`) ? document.querySelector(`#${data.sender}`).parentElement.nextElementSibling.querySelector(".messages-container"): null
+        console.log(chat)
         if (!chat){
         }else{
-          Handledisplaymsgs([data],document.querySelector(".messages-container"),22)
+          Handledisplaymsgs([data],chat,22)
         }
       }else if (data.type === "signal-typing"){
         console.log(data.sender, " is typing")

@@ -80,6 +80,7 @@ func (h *UserHandler) SignUpHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error While Registering The User.", http.StatusInternalServerError)
 		return
 	}
+	
 	w.WriteHeader(http.StatusOK)
 	// w.Write([]byte("You Logged In Successfuly!"))
 	// http.Redirect(w, r, "/login", http.StatusSeeOther)

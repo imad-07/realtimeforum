@@ -55,7 +55,10 @@ func (Ws *WsHandler) Wshandler(w http.ResponseWriter, r *http.Request) {
 	for {
 		var msg shareddata.ChatMessage
 		err := conn.ReadJSON(&msg)
-		username, _ := service.GetUser(Ws.WsService.Wsdata.Db, user.Value)
+		username, id := service.GetUser(Ws.WsService.Wsdata.Db, user.Value)
+		if id == 0{
+			break
+		}
 		msg.Sender = username
 		if err != nil {
 			break

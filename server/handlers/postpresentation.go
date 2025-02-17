@@ -54,7 +54,6 @@ func (p *PostHandler) CreatePostHandler(w http.ResponseWriter, r *http.Request) 
 
 	var post shareddata.Post
 	if err := json.NewDecoder(r.Body).Decode(&post); err != nil {
-		fmt.Println(1)
 		helpers.WriteJson(w, http.StatusBadRequest, struct {
 			Error string `json:"error"`
 		}{Error: err.Error()})
@@ -107,7 +106,6 @@ func (p *PostHandler) CreatePostHandler(w http.ResponseWriter, r *http.Request) 
 
 func (p *PostHandler) GetPostHandler(w http.ResponseWriter, r *http.Request) {
 	startid, _ := strconv.Atoi(r.URL.Query().Get("start-id"))
-	fmt.Println(startid)
 	postsMetaData, err := p.PostService.GetPostMetaData()
 	if err != nil {
 		if err == sqlite3.ErrLocked {

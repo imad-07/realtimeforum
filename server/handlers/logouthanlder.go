@@ -2,7 +2,6 @@ package handler
 
 import (
 	"database/sql"
-	"log"
 	"net/http"
 
 	"forum/server/service"
@@ -22,18 +21,24 @@ func NewLo(B *sql.DB) Lo {
 func (Lo *Lo) Logout(w http.ResponseWriter, r *http.Request) {
 	user, err := r.Cookie(shareddata.SessionName)
 	if err != nil {
-		log.Fatal(err)
+		http.SetCookie(w, &http.Cookie{
+			Name:   shareddata.SessionName,
+			Value:  "",
+			Path:   "/",
+			MaxAge: -1,
+		})
+	} else {
+		username, _ := service.GetUser(Lo.db, user.Value)
+		delete(service.Clients, username)
+		var message shareddata.ChatMessage
+		message.Content = username
+		message.Type = "signal-off"
+		service.Notify(username, message)
+		http.SetCookie(w, &http.Cookie{
+			Name:   shareddata.SessionName,
+			Value:  "",
+			Path:   "/",
+			MaxAge: -1,
+		})
 	}
-	username, _ := service.GetUser(Lo.db, user.Value)
-	delete(service.Clients, username)
-	var message shareddata.ChatMessage
-	message.Content = username
-	message.Type = "signal-off"
-	service.Notify(username, message)
-	http.SetCookie(w, &http.Cookie{
-		Name:   shareddata.SessionName,
-		Value:  "",
-		Path:   "/",
-		MaxAge: -1,
-	})
 }
