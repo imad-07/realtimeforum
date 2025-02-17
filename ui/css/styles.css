@@ -86,7 +86,7 @@ button {
 }
 
 .LO {
-  margin-top: 50vh;
+  margin-top: 60vh;
 }
 
 .container {
@@ -476,7 +476,7 @@ select:focus {
 
 ul {
   order: -1;
-  height: 100vh;
+  height: auto;
   overflow-y: auto;
   background: linear-gradient(180deg, #e0dfdd, #d4d3d0);
   width: 250px;
@@ -489,7 +489,7 @@ ul {
 }
 
 .chat {
-  width: 100%;
+  /* width: 100%; */
   margin: 20px;
 }
 
@@ -677,8 +677,9 @@ ul {
   }
 
   .container {
-    display: flex;
-    flex-direction: column;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
     position: relative;
     overflow-x: hidden;
   }
@@ -692,12 +693,24 @@ ul {
     border-bottom: 1px solid #ddd;
     height: auto;
   }
-
   .chat {
+    width: 50% !important;
     display: flex;
-    /* flex-direction: column; */
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex: 1;
     order: 2;
-    margin-right: 100px;
+  }
+  
+  .posts-section {
+    width: 50% !important;
+    padding: 15px;
+    /* flex: 1; */
+    order: 2;
+  }
+  
+  .posts-section {
+    padding: 15px;
   }
 
   .profile-section {
@@ -727,13 +740,7 @@ ul {
   }
 
 
-  .posts-section {
-    /* width: 100%; */
-    padding: 15px;
-    order: 3;
-    width: 100%;
-
-  }
+  
 
   .post {
     margin: 10px auto;
