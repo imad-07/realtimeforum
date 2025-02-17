@@ -299,7 +299,7 @@ function createPost(Post) {
         commentscontainer.addEventListener("scroll", async () => {
           if (
             commentscontainer.scrollTop + commentscontainer.clientHeight >=
-              commentscontainer.scrollHeight * 0.95 &&
+            commentscontainer.scrollHeight * 0.95 &&
             !cmtloading
           ) {
             try {
@@ -361,7 +361,7 @@ function createPost(Post) {
   postsection.addEventListener("scroll", async () => {
     if (
       postsection.scrollTop + postsection.clientHeight >=
-        postsection.scrollHeight &&
+      postsection.scrollHeight &&
       !loading
     ) {
       loading = true;
@@ -524,7 +524,7 @@ async function getInfoData() {
   info = data;
   if (data.authorize) {
     if (!socket) {
-      Hanldews();
+      await Hanldews()
     }
   }
 }
@@ -543,6 +543,9 @@ async function loadComments(postId, cnum) {
 }
 async function loadaddPost(contentInput, categories, title) {
   let response = await addpost(contentInput, categories, title);
+  if (!response.ok) {
+    popup("invalid post format", "warning")
+  }
   return response.ok;
 }
 async function addpost(contentInput, categories, Title) {
@@ -568,6 +571,9 @@ async function addcomment(contentInput, postId) {
 }
 async function loadcomment(contentInput, postId) {
   let response = await addcomment(contentInput, postId);
+  if (!response.ok) {
+    popup("invalid cmnt format", "warning")
+  }
   return response.ok;
 }
 (async function () {
@@ -585,10 +591,7 @@ async function Hanldews() {
   socket.onerror = (error) => {
     console.error("WebSocket error:", error);
   };
-  socket.onclose = () => {
-    console.log("WebSocket connection closed.");
-  };
-  socket.addEventListener("message", (event) => {
+ socket.addEventListener("message", (event) => {
     let data;
     try {
       data = JSON.parse(event.data);
@@ -611,7 +614,6 @@ async function Hanldews() {
         ul = document.createElement("ul");
         chat.appendChild(ul);
       }
-
       data.forEach((us) => {
         let existingUser = document.querySelector(`#${us.username}`);
         if (!existingUser) {
@@ -619,7 +621,7 @@ async function Hanldews() {
           userElement.id = us.username;
           userElement.textContent = us.username;
           userElement.classList.add("chat-user");
-          if (us.State) {
+          if (us.state) {
             userElement.classList.add("online");
           }
           let offset = 0;
@@ -726,10 +728,10 @@ async function Hanldews() {
         popup(data.sender + " sent a message", "success");
         let chat = document.querySelector(`#${data.sender}.text-chat`)
           ? document
-              .querySelector(`#${data.sender}`)
-              .parentElement.nextElementSibling.querySelector(
-                ".messages-container"
-              )
+            .querySelector(`#${data.sender}`)
+            .parentElement.nextElementSibling.querySelector(
+              ".messages-container"
+            )
           : null;
         console.log(chat);
         if (!chat) {
@@ -740,7 +742,7 @@ async function Hanldews() {
         console.log(data.sender, " is typing");
       }
     }
-  });
+  })
 }
 function scrollToBottom() {
   let msgContainer = document.querySelector(".messages-container");
@@ -749,9 +751,12 @@ function scrollToBottom() {
 
 async function loadMessages(userId, offset) {
   const response = await fetch(`/api/msg?user_id=${userId}&offset=${offset}`);
-
-  const msgs = await response.json();
-  return msgs.messages;
+  if (response.status == 204) {
+    popup("no messages", "warning")
+  } else {
+    const msgs = await response.json();
+    return msgs.messages;
+  }
 }
 function Handledisplaymsgs(msgs, msgcontainer, rec) {
   if (Array.isArray(msgs)) {
@@ -760,11 +765,11 @@ function Handledisplaymsgs(msgs, msgcontainer, rec) {
       if (msg.sender == rec || rec == 22) {
         msghtml = document
           .createRange()
-          .createContextualFragment(othermsg(msg.content));
+          .createContextualFragment(othermsg(msg));
       } else {
         msghtml = document
           .createRange()
-          .createContextualFragment(mymsg(msg.content));
+          .createContextualFragment(mymsg(msg));
       }
       if (rec == 22 || !rec) {
         msgcontainer.appendChild(msghtml);

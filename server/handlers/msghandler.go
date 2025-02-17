@@ -59,6 +59,10 @@ func (Msg *Msghandler) Maghandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		Msgs, err := Msg.Msgservice.Wsdata.Getconv(username, userID, offset)
+		if err == sql.ErrNoRows{
+			http.Error(w, "no msg", 204)
+			return
+		}
 		if err != nil {
 			http.Error(w, "error in extrtacting conv", http.StatusInternalServerError)
 			return

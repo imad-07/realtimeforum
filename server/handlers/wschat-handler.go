@@ -12,6 +12,23 @@ import (
 	"forum/server/shareddata"
 )
 
+type Usrhandler struct {
+	Usrservice *service.Wservice
+}
+
+func Newusrhandler(db *sql.DB) *Usrhandler {
+	Usrdata := data.WsData{
+		Db: db,
+	}
+	Usrservice := service.Wservice{
+		Wsdata: Usrdata,
+	}
+	Usrhandler := &Usrhandler{
+		Usrservice: &Usrservice,
+	}
+	return Usrhandler
+}
+
 func NewWshandler(db *sql.DB) *WsHandler {
 	Wsdata := data.WsData{
 		Db: db,
@@ -56,16 +73,35 @@ func (Ws *WsHandler) Wshandler(w http.ResponseWriter, r *http.Request) {
 		var msg shareddata.ChatMessage
 		err := conn.ReadJSON(&msg)
 		username, id := service.GetUser(Ws.WsService.Wsdata.Db, user.Value)
-		if id == 0{
+		if id == 0 {
 			break
 		}
 		msg.Sender = username
 		if err != nil {
 			break
 		}
-		if msg.Type == "message"{
+		if msg.Type == "message" {
 			Ws.WsService.SendPrivateMessage(msg)
 		}
 	}
 	Ws.WsService.DeleteConnection(user.Value, conn)
+}
+
+func (Usr *Usrhandler) Getuserhandler(w http.ResponseWriter, r *http.Request) {
+	user, err := r.Cookie(shareddata.SessionName)
+	if err != nil {
+		return
+	}
+	username, id := service.GetUser(Usr.Usrservice.Wsdata.Db, user.Value)
+	if id == 0 {
+		return
+	}
+	users := Usr.Usrservice.Wsdata.Getusers(username)
+	usr, exists := service.Clients[username]
+	fmt.Println(service.Clients)
+	if exists {
+		for _, conn := range usr {
+			conn.WriteJSON(users)
+		}
+	}
 }

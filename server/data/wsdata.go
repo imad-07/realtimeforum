@@ -2,7 +2,6 @@ package data
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 
 	"forum/server/shareddata"
@@ -15,7 +14,7 @@ type WsData struct {
 type User struct {
 	Username string `json:"username"`
 	Id       string `json:"id"`
-	State    bool   `json:"state`
+	State    bool   `json:"state"`
 }
 
 func (Ws *WsData) Insertconv(msg shareddata.ChatMessage) {
@@ -35,7 +34,7 @@ func (Ws *WsData) Getconv(Sender, Receiver string, num int) ([]shareddata.ChatMe
 		rw := Ws.Db.QueryRow(`SELECT id FROM user_chats WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?) ORDER BY id DESC LIMIT 1;`, Sender, Receiver, Receiver, Sender)
 		err := rw.Scan(&num)
 		if err != nil {
-			fmt.Println(err)
+			return nil, err
 		}
 		num++
 	}

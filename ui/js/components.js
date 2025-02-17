@@ -127,8 +127,34 @@ let commentdivhtml = (username) =>`
 </div>
 `
 let mymsg = (message)=>`<div class="message-box right">
-            <p>${message}</p>
+            <p>${formatDateTime(message.timestamp)}</p>
+            <p>${message.sender}</p>
+            <hr>
+            <p>${message.content}</p>
         </div>`
 let othermsg = (message)=>`<div class="message-box left">
-        <p>${message}</p>
+            <p>${formatDateTime(message.timestamp)}</p>
+            <p>${message.sender}</p>
+            <hr>
+            <p>${message.content}</p>
     </div>`
+    function formatDateTime(isoDate) {
+      const date = new Date(isoDate);
+      return date.toLocaleString("en-US", {
+          year: "numeric",
+          month: "numeric",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+          timeZone: "UTC"
+      })!= "Invalid Date" ? date.toLocaleString("en-US", {
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone: "UTC"
+    }): formatDateTime(Date().toString().slice(0, 19) + "Z")
+  }

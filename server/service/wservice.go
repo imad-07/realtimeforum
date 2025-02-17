@@ -34,7 +34,7 @@ func (Ws *Wservice) RegisterConnection(user string, conn *websocket.Conn) {
 		var msg shareddata.ChatMessage
 		msg.Type = "signal-on"
 		msg.Content = username
-		BroadcastMessage(username, msg)
+		Notify(username, msg)
 	} else {
 		fmt.Println("Attempt to register invalid user")
 	}
@@ -44,7 +44,6 @@ func (Ws *Wservice) RegisterConnection(user string, conn *websocket.Conn) {
 // Handle an incoming WebSocket connection
 func (Ws *Wservice) HandleConnection(uuid string, conn *websocket.Conn) {
 	username, _ := GetUser(Ws.Wsdata.Db, uuid)
-
 	mutex.Lock()
 	users := Ws.Wsdata.Getusers(username)
 	for i := 0; i < len(users); i++ {
@@ -71,7 +70,7 @@ func (Ws *Wservice) DeleteConnection(uuid string, conn *websocket.Conn) {
 	}
 	if len(Clients[username]) == 0 {
 		delete(Clients, username)
-		var message shareddata.ChatMessage
+	var message shareddata.ChatMessage
 		message.Content = username
 		message.Type = "signal-off"
 		Notify(username, message)
@@ -86,29 +85,12 @@ func Notify(username string, message shareddata.ChatMessage) {
 		for _, conn := range connections {
 			err := conn.WriteJSON(message)
 			if err != nil {
-				fmt.Println("Error sending message:", err)
+				fmt.Println(Clients)
+				fmt.Println(username," Error sending message:", err)
 			}
 		}
 	}
-}
-
-// Broadcast a message to all WebSocket connections except the sender
-func BroadcastMessage(senderID string, message shareddata.ChatMessage) {
-	mutex.Lock()
-	defer mutex.Unlock()
-	for userID, connections := range Clients {
-		if userID == senderID {
-			continue
-		}
-		for _, conn := range connections {
-			err := conn.WriteJSON(message)
-			if err != nil {
-				fmt.Println("Error sending message:", err)
-			}
-		}
-	}
-}
-
+} 
 func (Ws *Wservice) SendPrivateMessage(msg shareddata.ChatMessage) {
 	msg.Content = html.EscapeString(msg.Content)
 	msg.Sender = html.EscapeString(msg.Sender)
@@ -119,11 +101,7 @@ func (Ws *Wservice) SendPrivateMessage(msg shareddata.ChatMessage) {
 			err := conn.WriteJSON(msg)
 			if err != nil {
 				fmt.Println("Error sending private message:", err)
-				conn.Close()
-			} else {
-				fmt.Println("error cannot send message")
 			}
-
 		}
 	}
 	if Ws.Wsdata.Checkuser(msg.Reciver) {
