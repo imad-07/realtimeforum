@@ -692,7 +692,7 @@ async function Hanldews() {
                 );
                 Handledisplaymsgs([message], msgcontainer);
                 scrollToBottom();
-               userElement.style.order = '-1'
+                ul.insertBefore(userElement, ul.firstChild)
               });
             } else {
               console.error("No chat button found!");

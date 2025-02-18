@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/websocket"
 
@@ -81,7 +82,9 @@ func (Ws *WsHandler) Wshandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		if msg.Type == "message" {
-			Ws.WsService.SendPrivateMessage(msg)
+			if len(strings.TrimSpace(msg.Content)) != 0{
+				Ws.WsService.SendPrivateMessage(msg)
+			}
 		}
 	}
 	Ws.WsService.DeleteConnection(user.Value, conn)
