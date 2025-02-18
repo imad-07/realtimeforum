@@ -280,7 +280,8 @@ function createPost(Post) {
   let addCommentButton = commentinput.querySelector(".addcoment");
   addCommentButton.addEventListener("click", async function () {
     let content = commentinput.querySelector(".coment-content.input").value;
-    let r = await loadcomment(content, Post.id);
+    await loadcomment(content, Post.id);
+    
   });
   let cmtnum = 0;
   comment.addEventListener("click", async function () {
@@ -309,7 +310,7 @@ function createPost(Post) {
                 cmtloading = false;
               }
             } catch (error) {
-              console.error("Error loading comments:", error);
+              console.log("Error loading comments:", error);
             }
           }
         });
@@ -346,7 +347,27 @@ function createPost(Post) {
       let cats = postinput.querySelectorAll(".categorie input:checked");
       let categories = [];
       cats.forEach((cat) => categories.push(cat.value));
-      let r = await loadaddPost(content, categories, title);
+      await loadaddPost(content, categories, title);
+      ////refresh posts
+      let posts = document.querySelector(".posts-section");
+      if (posts) {
+        posts.remove();
+      }
+      let inp = document.querySelector(".post.beta");
+      if (!inp) {
+        loadPosts(0).then((posts) => {
+          let ps = document.createElement("div");
+          ps.classList.add("posts-section");
+          ps.appendChild(postin());
+          document.querySelector(".container").appendChild(ps);
+          if (posts != "no posts") {
+            for (let post in posts) {
+              createPost(posts[post]);
+            }
+            lastpost = posts[posts.length - 1].id;
+          }
+        });
+      }
     });
   }
   let container = document.querySelector(".container");
@@ -511,6 +532,7 @@ async function loadPosts(startid) {
   if (posts.length == 0) {
     return "baraka elik";
   }
+  console.log(posts[0])
   return posts;
 }
 async function getInfoData() {
@@ -530,7 +552,7 @@ async function fetchComments(postId, cnum) {
 async function loadComments(postId, cnum) {
   let response = await fetchComments(postId, cnum);
   let comments = response.Comments;
-  if (comments.length == 0) {
+  if (comments!= null&& comments.length == 0) {
     return "baraka elik";
   }
   return comments;
@@ -721,6 +743,7 @@ async function Hanldews() {
           document.querySelector("ul").appendChild(user);
         }
         user.classList.add("online");
+        await fetch("/api/getuser")
       } else if (data.type === "message") {
         popup(data.sender + " sent a message", "success");
         let chat = document.querySelector(`#${data.sender}.text-chat`)
@@ -738,7 +761,6 @@ async function Hanldews() {
       } else if (data.type === "signal-typing") {
         console.log(data.sender, " is typing");
       }
-      await fetch("/api/getuser")
     }
   })
 }

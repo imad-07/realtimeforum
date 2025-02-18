@@ -29,6 +29,9 @@ func (Lo *Lo) Logout(w http.ResponseWriter, r *http.Request) {
 		})
 	} else {
 		username, _ := service.GetUser(Lo.db, user.Value)
+		for _,conn := range service.Clients[username]{
+			conn.Close()
+		}
 		delete(service.Clients, username)
 		var message shareddata.ChatMessage
 		message.Content = username

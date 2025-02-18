@@ -81,7 +81,8 @@ func (Ws *WsHandler) Wshandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			break
 		}
-		if msg.Type == "message" {
+		_, err = r.Cookie(shareddata.SessionName)
+		if msg.Type == "message" && err == nil{
 			if len(strings.TrimSpace(msg.Content)) != 0{
 				Ws.WsService.SendPrivateMessage(msg)
 			}
