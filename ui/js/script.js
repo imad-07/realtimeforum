@@ -24,6 +24,7 @@ function createSidebar() {
   logoutbtn.addEventListener("click", function () {
     logout();
   });
+ 
   let homebtn = document.querySelector(".Home");
   homebtn.addEventListener("click", function () {
     let chat = document.querySelector(".chat");
@@ -31,10 +32,12 @@ function createSidebar() {
     let chatcard = document.querySelector(".card-container");
     if (chatcard) {
       chatcard.remove();
+      console.log("removed first ***");
     }
 
     let inp = document.querySelector(".post.beta");
     if (!inp) {
+      
       loadPosts(0).then((posts) => {
         let ps = document.createElement("div");
         ps.classList.add("posts-section");
@@ -183,6 +186,11 @@ function postin() {
   return postDiv;
 }
 function createPost(Post) {
+  let chatcard = document.querySelector(".card-container");
+      if (chatcard) {
+        chatcard.remove();
+        console.log("removed 2222 ");
+      }
   // Create the main post container
   const post = document.createElement("div");
   post.classList.add("post");
@@ -625,6 +633,14 @@ async function Hanldews() {
         chat.style.display = "none";
         chat.innerHTML = chathtml("");
         document.querySelector(".container").appendChild(chat);
+
+        let chatcard = document.querySelector(".card-container");
+
+        if (chatcard) {
+          chatcard.remove();
+          console.log("removed3333333333333");
+
+        }
       }
       let ul = chat.querySelector("ul");
       if (!ul) {
@@ -632,12 +648,13 @@ async function Hanldews() {
         chat.appendChild(ul);
       }
       ul.innerHTML = ""
+
+     
       data.forEach((us) => {
-        let existingUser = document.querySelector(`#${us.username}`);
-        if (!existingUser) {
           let userElement = document.createElement("li");
           userElement.id = us.username;
           userElement.textContent = us.username;
+          console.log(us.username);
           userElement.classList.add("chat-user");
           if (us.state) {
             userElement.classList.add("online");
@@ -645,10 +662,7 @@ async function Hanldews() {
           let offset = 0;
           ul.appendChild(userElement);
 
-          let chatcard = document.querySelector(".card-container");
-          if (chatcard) {
-            chatcard.remove();
-          }
+          
 
           userElement.addEventListener("click", async function () {
             let posts = document.querySelector(".posts-section");
@@ -658,10 +672,14 @@ async function Hanldews() {
             let chat = document.querySelector(".chat");
             chat.style.width = "100%";
 
+            ///****** remove chat for double click */
+            
             let chatcard = document.querySelector(".card-container");
 
             if (chatcard) {
               chatcard.remove();
+              console.log("removed******************");
+
             }
 
             let tempDiv = document.createElement("div");
@@ -721,7 +739,7 @@ async function Hanldews() {
               console.error("No chat button found!");
             }
           });
-        }
+        
       });
       chat.style.display = "flex";
     } else {
