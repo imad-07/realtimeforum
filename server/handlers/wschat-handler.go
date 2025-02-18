@@ -96,10 +96,16 @@ func (Usr *Usrhandler) Getuserhandler(w http.ResponseWriter, r *http.Request) {
 	if id == 0 {
 		return
 	}
-	users := Usr.Usrservice.Wsdata.Getusers(username)
 	usr, exists := service.Clients[username]
-	fmt.Println(service.Clients)
 	if exists {
+		users := Usr.Usrservice.Wsdata.Getusers(username)
+		service.Mutex.Lock()
+		for i := 0; i < len(users); i++ {
+			if _, exists := service.Clients[users[i].Username]; exists {
+				users[i].State = true
+			}
+		}
+		service.Mutex.Unlock()
 		for _, conn := range usr {
 			conn.WriteJSON(users)
 		}

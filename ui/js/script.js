@@ -239,11 +239,6 @@ function createPost(Post) {
   const postActions = document.createElement("div");
   postActions.classList.add("post-actions");
 
-  // Like button and notification
-
-  // Dislike button and notification
-
-  // Comment button and notification
   const comment = document.createElement("div");
   comment.classList.add("comments");
 
@@ -528,7 +523,6 @@ async function getInfoData() {
     }
   }
 }
-
 async function fetchComments(postId, cnum) {
   const res = await fetch(`/api/post/${postId}/comments/${cnum}`);
   return await res.json();
@@ -591,7 +585,7 @@ async function Hanldews() {
   socket.onerror = (error) => {
     console.error("WebSocket error:", error);
   };
- socket.addEventListener("message", (event) => {
+ socket.addEventListener("message",async  (event) => {
     let data;
     try {
       data = JSON.parse(event.data);
@@ -601,6 +595,7 @@ async function Hanldews() {
     }
 
     if (Array.isArray(data)) {
+      console.log(data)
       let chat = document.querySelector(".chat");
       if (!chat) {
         chat = document.createElement("div");
@@ -614,6 +609,7 @@ async function Hanldews() {
         ul = document.createElement("ul");
         chat.appendChild(ul);
       }
+      ul.innerHTML = ""
       data.forEach((us) => {
         let existingUser = document.querySelector(`#${us.username}`);
         if (!existingUser) {
@@ -678,8 +674,7 @@ async function Hanldews() {
             // ***** add chat button agin ****
             let chatbtn = document.querySelector(".button-send");
             if (chatbtn) {
-              chatbtn.addEventListener("click", (e) => {
-                console.log("Sending message...");
+              chatbtn.addEventListener("click",(e) => {
                 e.preventDefault();
                 let rec = document.querySelector(".text-chat").id;
                 if (rec == "") return;
@@ -697,6 +692,7 @@ async function Hanldews() {
                 );
                 Handledisplaymsgs([message], msgcontainer);
                 scrollToBottom();
+               userElement.style.order = '-1'
               });
             } else {
               console.error("No chat button found!");
@@ -741,6 +737,7 @@ async function Hanldews() {
       } else if (data.type === "signal-typing") {
         console.log(data.sender, " is typing");
       }
+      await fetch("/api/getuser")
     }
   })
 }
@@ -748,7 +745,6 @@ function scrollToBottom() {
   let msgContainer = document.querySelector(".messages-container");
   msgContainer.scrollTop = msgContainer.scrollHeight;
 }
-
 async function loadMessages(userId, offset) {
   const response = await fetch(`/api/msg?user_id=${userId}&offset=${offset}`);
   if (response.status == 204) {
@@ -781,7 +777,6 @@ function Handledisplaymsgs(msgs, msgcontainer, rec) {
   scrollToBottom();
 }
 function Typing(element, username) {
-  console.log(1);
   element.addEventListener("input", (e) => {
     let delay = 1000;
     let msg = {
@@ -803,7 +798,6 @@ function Typing(element, username) {
 const FADE_DUR = 500;
 const DISPLAY_DUR = 3000;
 let popupContain;
-
 function popup(message, extraClasses) {
   if (!popupContain) {
     popupContain = document.createElement("div");

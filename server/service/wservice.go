@@ -17,7 +17,7 @@ type Wservice struct {
 
 var (
 	Clients = make(map[string][]*websocket.Conn)
-	mutex   = sync.Mutex{}
+	Mutex   = sync.Mutex{}
 )
 
 // Register a new WebSocket connection for a user
@@ -28,9 +28,9 @@ func (Ws *Wservice) RegisterConnection(user string, conn *websocket.Conn) {
 	}
 	username, userid := GetUser(Ws.Wsdata.Db, user)
 	if userid != 0 {
-		mutex.Lock()
+		Mutex.Lock()
 		Clients[username] = append(Clients[username], conn)
-		mutex.Unlock()
+		Mutex.Unlock()
 		var msg shareddata.ChatMessage
 		msg.Type = "signal-on"
 		msg.Content = username
@@ -44,14 +44,14 @@ func (Ws *Wservice) RegisterConnection(user string, conn *websocket.Conn) {
 // Handle an incoming WebSocket connection
 func (Ws *Wservice) HandleConnection(uuid string, conn *websocket.Conn) {
 	username, _ := GetUser(Ws.Wsdata.Db, uuid)
-	mutex.Lock()
+	Mutex.Lock()
 	users := Ws.Wsdata.Getusers(username)
 	for i := 0; i < len(users); i++ {
 		if _, exists := Clients[users[i].Username]; exists {
 			users[i].State = true
 		}
 	}
-	mutex.Unlock()
+	Mutex.Unlock()
 
 	conn.WriteJSON(users)
 }
@@ -59,8 +59,8 @@ func (Ws *Wservice) HandleConnection(uuid string, conn *websocket.Conn) {
 // Remove a WebSocket connection for a user
 func (Ws *Wservice) DeleteConnection(uuid string, conn *websocket.Conn) {
 	username, _ := GetUser(Ws.Wsdata.Db, uuid)
-	mutex.Lock()
-	defer mutex.Unlock()
+	Mutex.Lock()
+	defer Mutex.Unlock()
 	connections := Clients[username]
 	for i := 0; i < len(connections); i++ {
 		if connections[i] == conn {
