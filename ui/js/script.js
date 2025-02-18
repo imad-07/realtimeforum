@@ -679,6 +679,7 @@ async function Hanldews() {
                 let rec = document.querySelector(".text-chat").id;
                 if (rec == "") return;
                 let msg = document.querySelector(".message-send").value;
+                if (msg.trim().length != 0){
                 const message = {
                   type: "message",
                   sender: info.username,
@@ -693,7 +694,7 @@ async function Hanldews() {
                 Handledisplaymsgs([message], msgcontainer);
                 scrollToBottom();
                 ul.insertBefore(userElement, ul.firstChild)
-              });
+              }});
             } else {
               console.error("No chat button found!");
             }
