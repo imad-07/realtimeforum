@@ -99,7 +99,7 @@ func (a *PostService) GetPost(userID, startid int) ([]shareddata.Post, error){
 		return nil, sql.ErrNoRows
 	}
 	row, err := a.PostData.ExtractPosts(startid)
-	if err != nil {
+	if err != nil || row == nil{
 		return nil, err
 	}
 	var posts []shareddata.Post

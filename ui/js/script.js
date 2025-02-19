@@ -183,7 +183,38 @@ function postin() {
     .join("");
 
   postDiv.innerHTML = postdivhtml(categoryHTML);
-  return postDiv;
+  let addpostbutton = postDiv.querySelector(".addpost");
+
+  addpostbutton.addEventListener("click", async function () {
+    console.log("helloooo")
+    let content = postDiv.querySelector(".post-content.input").value;
+    let title = postDiv.querySelector(".post-title.input").value;
+    let cats = postDiv.querySelectorAll(".categorie input:checked");
+    let categories = [];
+    cats.forEach((cat) => categories.push(cat.value));
+    await loadaddPost(content, categories, title);
+    ////refresh posts
+    let posts = document.querySelector(".posts-section");
+    if (posts) {
+      posts.remove();
+    }
+    let inp = document.querySelector(".post.beta");
+    if (!inp) {
+      loadPosts(0).then((posts) => {
+        let ps = document.createElement("div");
+        ps.classList.add("posts-section");
+        ps.appendChild(postin());
+        document.querySelector(".container").appendChild(ps);
+        if (posts != "no posts") {
+          for (let post in posts) {
+            createPost(posts[post]);
+          }
+          lastpost = posts[posts.length - 1].id;
+        }
+      });
+    }
+  });
+  return postDiv
 }
 function createPost(Post) {
   let chatcard = document.querySelector(".card-container");
@@ -347,36 +378,7 @@ function createPost(Post) {
       postinput = postin();
       postsection.appendChild(postinput);
     }
-    let addpostbutton = postinput.querySelector(".addpost");
 
-    addpostbutton.addEventListener("click", async function () {
-      let content = postinput.querySelector(".post-content.input").value;
-      let title = postinput.querySelector(".post-title.input").value;
-      let cats = postinput.querySelectorAll(".categorie input:checked");
-      let categories = [];
-      cats.forEach((cat) => categories.push(cat.value));
-      await loadaddPost(content, categories, title);
-      ////refresh posts
-      let posts = document.querySelector(".posts-section");
-      if (posts) {
-        posts.remove();
-      }
-      let inp = document.querySelector(".post.beta");
-      if (!inp) {
-        loadPosts(0).then((posts) => {
-          let ps = document.createElement("div");
-          ps.classList.add("posts-section");
-          ps.appendChild(postin());
-          document.querySelector(".container").appendChild(ps);
-          if (posts != "no posts") {
-            for (let post in posts) {
-              createPost(posts[post]);
-            }
-            lastpost = posts[posts.length - 1].id;
-          }
-        });
-      }
-    });
   }
   let container = document.querySelector(".container");
   // Append the post to the body
@@ -566,6 +568,7 @@ async function loadComments(postId, cnum) {
   return comments;
 }
 async function loadaddPost(contentInput, categories, title) {
+  console.log(123)
   let response = await addpost(contentInput, categories, title);
   if (!response.ok) {
     popup("invalid post format", "warning")
@@ -623,9 +626,8 @@ async function Hanldews() {
       console.error("Invalid JSON received:", event.data);
       return;
     }
-
+    if (data == null) return
     if (Array.isArray(data)) {
-      console.log(data)
       let chat = document.querySelector(".chat");
       if (!chat) {
         chat = document.createElement("div");

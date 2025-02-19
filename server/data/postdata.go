@@ -73,7 +73,6 @@ func (d *PostData) GetPost(id, user_id int) (shareddata.Post, error) {
 	row := d.Db.QueryRow(`SELECT  post_id, post_title, post_content, post_date, post_author, post_likes, post_dislikes, post_comments_count, joined_at
 	FROM single_post
 	WHERE post_id = ?`, id)
-
 	if row.Err() != nil {
 		return shareddata.Post{}, row.Err()
 	}
