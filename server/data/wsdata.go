@@ -24,7 +24,6 @@ func (Ws *WsData) Insertconv(msg shareddata.ChatMessage) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(time.Now())
 	defer stmt.Close()
 	_, err = stmt.Exec(msg.Sender, msg.Reciver, msg.Content)
 	if err != nil {

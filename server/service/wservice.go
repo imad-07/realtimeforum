@@ -85,7 +85,6 @@ func Notify(username string, message shareddata.ChatMessage) {
 		for _, conn := range connections {
 			err := conn.WriteJSON(message)
 			if err != nil {
-				fmt.Println(Clients)
 				fmt.Println(username," Error sending message:", err)
 			}
 		}

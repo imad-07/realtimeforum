@@ -134,7 +134,6 @@ func (h *CommentHandler) GetCommentsHandler(w http.ResponseWriter, r *http.Reque
 	}
 	// Get Comments
 	comments, err := h.CommentService.GetComments(postId, pageNumber, id)
-	fmt.Println(comments)
 	if err != nil {
 		switch err.Error() {
 		case sqlite3.ErrLocked.Error():

@@ -136,12 +136,13 @@ function createUserListItem(user) {
       
       const messageInput = document.querySelector(".message-send");
       const msg = messageInput.value;
-      
+      const now = new Date();
+      const formattedDate = now.toISOString()
       if (msg.trim().length === 0) return;
       const message = {
         type: "message",
         sender: info.username,
-        time: new Date(),
+        timestamp: formattedDate,
         recipient: recipient.toString(),
         content: msg
       };

@@ -1,4 +1,4 @@
-export{validinfos,logout, getInfoData, fetchComments, loadComments, loadPosts, loadaddPost, sendRegisterinfo, sendlogininfo, serveHome, addcomment, info, Removecard, createSidebar, loadMessages, Handledisplaymsgs, scrollToBottom, popup }
+export{validinfos,logout, getInfoData, fetchComments, loadComments, loadPosts, loadaddPost, sendRegisterinfo, sendlogininfo, serveHome, addcomment, info, Removecard, createSidebar, loadMessages, Handledisplaymsgs, scrollToBottom, popup, formatISODate }
 import { Hanldews} from "./ws.js";
 import { sidebarhtml, othermsg, mymsg } from "./components.js"
 import { ls, createPost, postin } from "./post.js"
@@ -194,7 +194,7 @@ async function loadMessages(userId, offset) {
 function Handledisplaymsgs(msgs, msgcontainer, rec) {
   if (Array.isArray(msgs)) {
     msgs.forEach((msg) => {
-      console.log(msg)
+      msg.timestamp = formatISODate(msg.timestamp)
       let msghtml;
       if (msg.sender == rec || rec == 22) {
         msghtml = document
@@ -215,4 +215,16 @@ function Handledisplaymsgs(msgs, msgcontainer, rec) {
 function scrollToBottom() {
   let msgContainer = document.querySelector(".messages-container");
   msgContainer.scrollTop = msgContainer.scrollHeight;
+}
+function formatISODate(isoString) {
+  const date = new Date(isoString);
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
