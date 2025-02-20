@@ -127,63 +127,44 @@ let commentdivhtml = (username) =>`
 </div>
 `
 let mymsg = (message)=>`<div class="message-box right">
-            <p>${formatDateTime(message.timestamp)}</p>
+            <p>${(message.timestamp)}</p>
             <p>${message.sender}</p>
             <hr>
             <p>${message.content}</p>
         </div>`
 let othermsg = (message)=>`<div class="message-box left">
-            <p>${formatDateTime(message.timestamp)}</p>
+            <p>${message.timestamp}</p>
             <p>${message.sender}</p>
             <hr>
             <p>${message.content}</p>
     </div>`
-    function formatDateTime(isoDate) {
-      const date = new Date(isoDate);
-      return date.toLocaleString("en-US", {
-          year: "numeric",
-          month: "numeric",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-          timeZone: "UTC"
-      })!= "Invalid Date" ? date.toLocaleString("en-US", {
-        year: "numeric",
-        month: "numeric",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-        timeZone: "UTC"
-    }): formatDateTime(Date().toString().slice(0, 19) + "Z")
-  }
   let postcore = (Post) => 
-    `
-        <div class="user-info">
-              <img src="/ui/css/default-profile.jpg" alt="User Avatar" class="avatar">
-              <div class="user-details">
-                <h4 class="username">${Post.author}</h4>
-                <p class="timestamp">${Post.date}</p>
-              </div>
-            </div>
-            ${Post.categories && Post.categories.length > 0 ? 
-              `<div class="categories">
-                ${Post.categories.map(cat => `<span class="category">${cat}</span>`).join('')}
-              </div>` : ''
-            }
-            <p class="post-title">${Post.title}</p>
-            <p class="post-content">${Post.content}</p>
-            <div class="post-actions">
-              <div class="comments">
-                <button>
-                  <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#707C97">
-                    <path d="M864-96 720-240H360q-29.7 0-50.85-21.15Q288-282.3 288-312v-48h384q29.7 0 50.85-21.15Q744-402.3 744-432v-240h48q29.7 0 50.85 21.15Q864-629.7 864-600v504ZM168-462l42-42h390v-288H168v330ZM96-288v-504q0-29.7 21.15-50.85Q138.3-864 168-864h432q29.7 0 50.85 21.15Q672-821.7 672-792v288q0 29.7-21.15 50.85Q629.7-432 600-432H240L96-288Zm72-216v-288 288Z"/>
-                  </svg>
-                </button>
-                <span class="notification-icon">${Post.commentsCount}</span>
-              </div>
-            </div>
-            <div class="comments-section" style="display: none;"></div>
+`
+    <div class="user-info">
+          <img src="/ui/css/default-profile.jpg" alt="User Avatar" class="avatar">
+          <div class="user-details">
+            <h4 class="username">${Post.author}</h4>
+            <p class="timestamp">${Post.date}</p>
           </div>
-    `;
+        </div>
+        ${Post.categories && Post.categories.length > 0 ? 
+          `<div class="categories">
+            ${Post.categories.map(cat => `<span class="category">${cat}</span>`).join('')}
+          </div>` : ''
+        }
+        <p class="post-title">${Post.title}</p>
+        <p class="post-content">${Post.content}</p>
+        <div class="post-actions">
+          <div class="comments">
+            <button>
+              <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#707C97">
+                <path d="M864-96 720-240H360q-29.7 0-50.85-21.15Q288-282.3 288-312v-48h384q29.7 0 50.85-21.15Q744-402.3 744-432v-240h48q29.7 0 50.85 21.15Q864-629.7 864-600v504ZM168-462l42-42h390v-288H168v330ZM96-288v-504q0-29.7 21.15-50.85Q138.3-864 168-864h432q29.7 0 50.85 21.15Q672-821.7 672-792v288q0 29.7-21.15 50.85Q629.7-432 600-432H240L96-288Zm72-216v-288 288Z"/>
+              </svg>
+            </button>
+            <span class="notification-icon">${Post.commentsCount}</span>
+          </div>
+        </div>
+        <div class="comments-section" style="display: none;"></div>
+      </div>
+`;
+

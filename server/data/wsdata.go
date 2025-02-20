@@ -2,7 +2,9 @@ package data
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
+	"time"
 
 	"forum/server/shareddata"
 )
@@ -22,6 +24,7 @@ func (Ws *WsData) Insertconv(msg shareddata.ChatMessage) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Println(time.Now())
 	defer stmt.Close()
 	_, err = stmt.Exec(msg.Sender, msg.Reciver, msg.Content)
 	if err != nil {
@@ -64,16 +67,18 @@ func (Ws *WsData) Getconv(Sender, Receiver string, num int) ([]shareddata.ChatMe
 func (Ws *WsData) Getusers(username string) []User {
 	var users []User
 	query := `
-            SELECT 
+    SELECT 
         user_profile.username,
         user_profile.id
     FROM user_profile
     LEFT JOIN user_chats 
-        ON (user_profile.username = user_chats.sender OR user_profile.username = user_chats.receiver) 
-        AND (user_chats.sender = $1 OR user_chats.receiver = $1)
-    WHERE user_profile.username != $1
+        ON (LOWER(user_profile.username) = LOWER(user_chats.sender) 
+            OR LOWER(user_profile.username) = LOWER(user_chats.receiver)) 
+        AND (LOWER(user_chats.sender) = LOWER($1) 
+             OR LOWER(user_chats.receiver) = LOWER($1))
+    WHERE LOWER(user_profile.username) != LOWER($1)
     GROUP BY user_profile.id
-    ORDER BY MAX(user_chats.time) DESC, user_profile.username;
+    ORDER BY MAX(user_chats.time) DESC, LOWER(user_profile.username);
 `
 	rows, err := Ws.Db.Query(query, username)
 	if err != nil {

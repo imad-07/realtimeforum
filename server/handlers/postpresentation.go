@@ -54,6 +54,7 @@ func (p *PostHandler) CreatePostHandler(w http.ResponseWriter, r *http.Request) 
 
 	var post shareddata.Post
 	if err := json.NewDecoder(r.Body).Decode(&post); err != nil {
+		fmt.Println(1,err)
 		helpers.WriteJson(w, http.StatusBadRequest, struct {
 			Error string `json:"error"`
 		}{Error: err.Error()})
@@ -64,7 +65,7 @@ func (p *PostHandler) CreatePostHandler(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		switch err.Error() {
 		case shareddata.PostErrors.ContentLength:
-			fmt.Println(1)
+			fmt.Println(2,err)
 			helpers.WriteJson(w, http.StatusBadRequest, struct {
 				Error string `json:"error"`
 			}{Error: err.Error()})

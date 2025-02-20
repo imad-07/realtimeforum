@@ -52,7 +52,7 @@ func (Ws *Wservice) HandleConnection(uuid string, conn *websocket.Conn) {
 		}
 	}
 	Mutex.Unlock()
-	fmt.Println(users)
+
 	conn.WriteJSON(users)
 }
 
