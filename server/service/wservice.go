@@ -107,3 +107,15 @@ func (Ws *Wservice) SendPrivateMessage(msg shareddata.ChatMessage) {
 		Ws.Wsdata.Insertconv(msg)
 	}
 }
+func (Ws *Wservice) SendTypingSignal(msg shareddata.ChatMessage){
+	msg.Reciver = html.EscapeString(msg.Reciver)
+	reciver, exists := Clients[msg.Reciver]
+	if exists {
+		for _, conn := range reciver {
+			err := conn.WriteJSON(msg)
+			if err != nil {
+				fmt.Println("Error sending private message:", err)
+			}
+		}
+	}
+}

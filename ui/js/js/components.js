@@ -1,4 +1,4 @@
-export {sidebarhtml, frontcard, backcard, commenthtml, commentdivhtml, postdivhtml, chathtml, mymsg, othermsg, postcore}
+export {sidebarhtml, frontcard, backcard, commenthtml, commentdivhtml, postdivhtml, chathtml, mymsg, othermsg, postcore, loader}
 
 let sidebarhtml = (username) => `
     <div class="profile-section">
@@ -167,4 +167,11 @@ let othermsg = (message)=>`<div class="message-box left">
         <div class="comments-section" style="display: none;"></div>
       </div>
 `;
+let loader = () => document.createRange().createContextualFragment(`
+  <div class="loader">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+  </div>
+`);
 

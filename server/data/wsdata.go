@@ -2,9 +2,7 @@ package data
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
-	"time"
 
 	"forum/server/shareddata"
 )

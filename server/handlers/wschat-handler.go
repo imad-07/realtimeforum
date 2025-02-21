@@ -86,6 +86,8 @@ func (Ws *WsHandler) Wshandler(w http.ResponseWriter, r *http.Request) {
 			if len(strings.TrimSpace(msg.Content)) != 0{
 				Ws.WsService.SendPrivateMessage(msg)
 			}
+		}else if msg.Type == "signal-typing"{
+			Ws.WsService.SendTypingSignal(msg)
 		}
 	}
 	Ws.WsService.DeleteConnection(user.Value, conn)

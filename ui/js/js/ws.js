@@ -1,5 +1,5 @@
 export { Hanldews, socket }
-import { chathtml } from "./components.js";
+import { chathtml, loader } from "./components.js";
 import { loadMessages, Handledisplaymsgs, scrollToBottom, info, popup } from "./helpers.js"
 let socket = {}
 async function Hanldews(info) {
@@ -146,7 +146,6 @@ function createUserListItem(user) {
         recipient: recipient.toString(),
         content: msg
       };
-      console.log(message.time)
       socket.send(JSON.stringify(message));
       messageInput.value = "";
       
@@ -167,7 +166,7 @@ function createUserListItem(user) {
     const msgContainer = document.querySelector(".messages-container");
     setupInfiniteScroll(msgContainer, user.username, offset);
     
-    //Typing(document.querySelector(".message-send"), document.querySelector(".text-chat").id);
+    Typing(document.querySelector(".message-send"), document.querySelector(".text-chat").id);
     setupChatButton(userElement, ul, info, socket);
   }
   function initializeChat(data, ul, info, socket) {
@@ -214,9 +213,13 @@ function createUserListItem(user) {
     
     const chat = findUserChat(data.sender);
     if (chat) {
-      console.log(data)
       Handledisplaymsgs([data], chat, 22);
     }
+    let ul = document.querySelector("ul") || null
+    if (ul != null){
+      let userElement = document.querySelector(`#${data.sender}.chat-user`)
+      ul.insertBefore(userElement, ul.firstChild)
+    } 
   }
   function findUserChat(senderId) {
     const chatHeader = document.querySelector(`#${senderId}.text-chat`);
@@ -225,7 +228,17 @@ function createUserListItem(user) {
     return chatHeader.parentElement.nextElementSibling.querySelector(".messages-container");
   }
   function handleTyping(sender) {
-    popup(`${sender} is typing`, "warning");
+    let user = document.querySelector(`li#${sender}`)
+    let load = user.querySelector(".loader")
+    if (!load){
+      let loaderelement = loader()
+      console.log(loaderelement)
+      user.appendChild(loaderelement)
+      setTimeout(function() {
+        load = user.querySelector(".loader")
+        load.remove()
+   }, 2000);
+  }
   }
   async function handleSignal(data) {
     switch (data.type) {
@@ -248,4 +261,21 @@ function createUserListItem(user) {
       default:
         console.warn(`Unknown signal type: ${data.type}`);
     }
+  }
+  function Typing(input, user){
+    let isTyping = false
+     input.addEventListener("input", function(){
+      if (!isTyping){
+        isTyping = true
+        const message = {
+          type: "signal-typing",
+          sender: info.username,
+          recipient: user,
+        };
+        socket.send(JSON.stringify(message))
+      setTimeout(function() {
+           isTyping = false
+      }, 2000);
+    }
+  });
   }

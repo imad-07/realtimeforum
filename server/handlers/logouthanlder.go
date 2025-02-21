@@ -29,6 +29,7 @@ func (Lo *Lo) Logout(w http.ResponseWriter, r *http.Request) {
 		})
 	} else {
 		username, _ := service.GetUser(Lo.db, user.Value)
+		service.Mutex.Lock()
 		for _,conn := range service.Clients[username]{
 			conn.Close()
 		}
@@ -43,5 +44,6 @@ func (Lo *Lo) Logout(w http.ResponseWriter, r *http.Request) {
 			Path:   "/",
 			MaxAge: -1,
 		})
+		service.Mutex.Unlock()
 	}
 }
