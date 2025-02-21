@@ -42,7 +42,8 @@ function Createchat(){
       chat.classList.add("chat");
       chat.style.display = "none";
       chat.innerHTML = chathtml("");
-      document.querySelector(".container").appendChild(chat);
+      let ctr = document.querySelector(".container")
+      ctr.insertBefore(chat,ctr.firstChild.nextSibling)
       let chatcard = document.querySelector(".card-container");
       if (chatcard) {
         chatcard.remove();
