@@ -43,7 +43,8 @@ function Createchat(){
       chat.style.display = "none";
       chat.innerHTML = chathtml("");
       let ctr = document.querySelector(".container")
-      ctr.insertBefore(chat,ctr.firstChild.nextSibling)
+      let pst = document.querySelector(".posts-section")
+      ctr.insertBefore(chat,pst)
       let chatcard = document.querySelector(".card-container");
       if (chatcard) {
         chatcard.remove();
