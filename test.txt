@@ -1,0 +1,27 @@
+Authentication
+POST /api/auth/register – Register a new user.
+POST /api/auth/login – Authenticate a user.
+GET /api/auth/logout – End the user session.
+User Profile & Following
+GET /api/users/:id – Get profile information.
+PUT /api/users/:id – Update profile details.
+POST /api/users/:id/follow – Send a follow request (or auto-follow if public).
+POST /api/users/:id/unfollow – Unfollow a user.
+Posts & Comments
+POST /api/posts – Create a new post.
+GET /api/posts – Retrieve posts (with privacy filters).
+GET /api/posts/:id – Retrieve a single post.
+POST /api/posts/:id/comments – Add a comment.
+Groups
+POST /api/groups – Create a new group.
+GET /api/groups – Browse all groups.
+GET /api/groups/:id – Get detailed group info.
+POST /api/groups/:id/invite – Invite users to the group.
+POST /api/groups/:id/join – Request to join a group.
+POST /api/groups/:id/posts – Create a post within a group.
+Notifications
+GET /api/notifications – Fetch all notifications for the user.
+Chat (Real-Time & Private)
+POST /api/chat/messages – Send a private message.
+WebSocket Endpoint /ws/chat – Real-time chat updates for private messages.
+WebSocket Endpoint /ws/groups/:groupId/chat – Real-time group chat.
