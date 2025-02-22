@@ -103,6 +103,9 @@ func (a *PostService) GetPost(userID, startid int) ([]shareddata.Post, error){
 		return nil, err
 	}
 	var posts []shareddata.Post
+	if row == nil{
+		return posts,nil
+	}
 	for row.Next() {
 		var post shareddata.Post
 

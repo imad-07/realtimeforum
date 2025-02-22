@@ -82,6 +82,7 @@ func (h *UserHandler) SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	
 	w.WriteHeader(http.StatusOK)
+	service.Notify(user.Username,shareddata.ChatMessage{Type: "signal-off", Content: user.Username})
 	// w.Write([]byte("You Logged In Successfuly!"))
 	// http.Redirect(w, r, "/login", http.StatusSeeOther)
 }

@@ -184,11 +184,16 @@ function createUserListItem(user) {
     const chat = document.querySelector(".chat");
     chat.style.display = "flex";
   }
-  function handleUserOffline(userId) {
-    const user = document.querySelector(`ul #${userId}`);
+ async function handleUserOffline(userId) {
+    let ul = document.querySelector("ul")
+    if (!ul){
+      await fetch("/api/getuser")
+    }else{
+    const user = ul.querySelector(`#${userId}`);
     if (user) {
       user.classList = ["chat-user"];
     }
+  }
   }
   async function handleUserOnline(userId) {
     const userList = document.querySelector("ul");
@@ -204,7 +209,6 @@ function createUserListItem(user) {
   }
   function createNewUser(userId) {
     const user = document.createElement("li");
-    console.log(userId);
     user.id = userId;
     user.textContent = userId;
     user.classList.add("chat-user");
@@ -243,9 +247,10 @@ function createUserListItem(user) {
   }
   }
   async function handleSignal(data) {
+    if (data != null){
     switch (data.type) {
       case "signal-off":
-        handleUserOffline(data.content);
+        await handleUserOffline(data.content);
         break;
         
       case "signal-on":
@@ -263,6 +268,7 @@ function createUserListItem(user) {
       default:
         console.warn(`Unknown signal type: ${data.type}`);
     }
+  }
   }
   function Typing(input, user){
     let isTyping = false

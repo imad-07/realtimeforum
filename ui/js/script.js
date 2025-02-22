@@ -5,7 +5,8 @@ import {
 from "/ui/js/js/components.js";
 import{
   ls,
-  createPost
+  createPost,
+  postin
 }
 from"/ui/js/js/post.js"
 import{
