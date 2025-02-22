@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"forum/server/data"
+	"forum/server/helpers"
 	"forum/server/service"
 	"forum/server/shareddata"
 
@@ -35,6 +36,7 @@ func NewUserHandler(db *sql.DB) *UserHandler {
 func (h *UserHandler) SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		//	ErrorHandler(w, http.StatusMethodNotAllowed, "Method Not Allowed", "Maybe GET Method Will Work!")
+		helpers.WriteJson(w, http.StatusMethodNotAllowed, "Method Not Allowed")
 		return
 	}
 
@@ -55,34 +57,40 @@ func (h *UserHandler) SignUpHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		// Username
 		if err.Error() == shareddata.Errors.InvalidUsername {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			// http.Error(w, err.Error(), http.StatusBadRequest)
+			helpers.WriteJson(w, http.StatusBadRequest, err.Error())
 			return
 		}
 		// Password
 		if err.Error() == shareddata.Errors.InvalidPassword {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			// http.Error(w, err.Error(), http.StatusBadRequest)
+			helpers.WriteJson(w, http.StatusBadRequest, err.Error())
 			return
 		}
 		// Email
 		if err.Error() == shareddata.Errors.InvalidEmail {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			// http.Error(w, err.Error(), http.StatusBadRequest)
+			helpers.WriteJson(w, http.StatusBadRequest, err.Error())
 			return
 		}
 		if err.Error() == shareddata.Errors.LongEmail {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			// http.Error(w, err.Error(), http.StatusBadRequest)
+			helpers.WriteJson(w, http.StatusBadRequest, err.Error())
 			return
 		}
 		// General
 		if err.Error() == shareddata.Errors.UserAlreadyExist {
-			http.Error(w, err.Error(), http.StatusConflict)
+			// http.Error(w, err.Error(), http.StatusConflict)
+			helpers.WriteJson(w, http.StatusConflict, err.Error())
 			return
 		}
 		http.Error(w, "Error While Registering The User.", http.StatusInternalServerError)
+		helpers.WriteJson(w, http.StatusInternalServerError, "Error While Registering The User.")
 		return
 	}
-	
+
 	w.WriteHeader(http.StatusOK)
-	service.Notify(user.Username,shareddata.ChatMessage{Type: "signal-off", Content: user.Username})
+	service.Notify(user.Username, shareddata.ChatMessage{Type: "signal-off", Content: user.Username})
 	// w.Write([]byte("You Logged In Successfuly!"))
 	// http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
@@ -123,6 +131,7 @@ func (h *UserHandler) SignUpHandler(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		// ErrorHandler(w, http.StatusMethodNotAllowed, "Method Not Allowed", "Maybe POST Method Will Work!")
+		helpers.WriteJson(w, http.StatusMethodNotAllowed, "Method Not Allowed")
 		return
 	}
 
@@ -145,24 +154,28 @@ func (h *UserHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		// Email
 		if err.Error() == shareddata.Errors.InvalidEmail {
 			fmt.Println(2)
-			http.Error(w, shareddata.Errors.InvalidEmail, http.StatusBadRequest)
+			// http.Error(w, shareddata.Errors.InvalidEmail, http.StatusBadRequest)
+			helpers.WriteJson(w, http.StatusBadRequest, err.Error())
 			return
 		}
 		if err.Error() == shareddata.Errors.LongEmail {
 			fmt.Println(3)
-			http.Error(w, shareddata.Errors.LongEmail, http.StatusBadRequest)
+			// http.Error(w, shareddata.Errors.LongEmail, http.StatusBadRequest)
+			helpers.WriteJson(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
 		// Password
 		if err.Error() == shareddata.Errors.InvalidPassword {
 			fmt.Println(4)
-			http.Error(w, shareddata.Errors.InvalidPassword, http.StatusBadRequest)
+			// http.Error(w, shareddata.Errors.InvalidPassword, http.StatusBadRequest)
+			helpers.WriteJson(w, http.StatusBadRequest, err.Error())
 			return
 		}
 		// General: User Doesn't Exist
 		if err.Error() == shareddata.Errors.InvalidCredentials {
-			http.Error(w, shareddata.Errors.InvalidCredentials, http.StatusUnauthorized)
+			// http.Error(w, shareddata.Errors.InvalidCredentials, http.StatusUnauthorized)
+			helpers.WriteJson(w, http.StatusUnauthorized,err.Error())
 			return
 		}
 
@@ -172,7 +185,8 @@ func (h *UserHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		log.Println("Unexpected error:", err)
-		http.Error(w, "Error While logging To An  Account.", http.StatusInternalServerError)
+		// http.Error(w, "Error While logging To An  Account.", http.StatusInternalServerError)
+		helpers.WriteJson(w, http.StatusInternalServerError, "Error While logging To An  Account.")
 		return
 	}
 	SetSessionCookie(w, user.Uuid)
@@ -180,7 +194,7 @@ func (h *UserHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	username, _ := service.GetUser(h.UserService.UserData.DB, user.Uuid)
 	message.Content = username
 	message.Type = "signal-on"
-	service.Notify(username,message)
+	service.Notify(username, message)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("You Logged In Successfuly!"))
 	// http.Redirect(w, r, "/", http.StatusSeeOther)
